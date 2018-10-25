@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Please note:
+# - The (experimental?) CMake script still has some issues.
+# - You may try with other targets than CORE2. For auto-detection
+#   just run make.
+
 # recipe for:
 P=OpenBLAS
 V=${OPENBLAS_VERSION:-0.2.20}
@@ -21,4 +26,3 @@ cd "$P-$V"
 # compile & install
 make TARGET=CORE2
 make TARGET=CORE2 PREFIX="${PREFIX}" install
-
