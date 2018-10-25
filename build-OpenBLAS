@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# recipe for:
+P=OpenBLAS
+V=${OPENBLAS_VERSION:-0.2.20}
+
+# download
+test -r "${DOWNLOADS_DIR}/${P}_$V.tar.gz"  || \
+        curl -L \
+        --output "${DOWNLOADS_DIR}/$P-$V.tar.gz" \
+        "http://github.com/xianyi/$P/archive/v$V.tar.gz"
+
+# unpack
+mkdir -p "${SRC_DIR}/$P" && cd "$_"
+tar xvf "${DOWNLOADS_DIR}/$P-$V.tar.gz"
+cd "$P-$V"
+
+# configure
+# nothing to configure
+
+# compile & install
+make TARGET=CORE2
+make TARGET=CORE2 PREFIX="${PREFIX}" install
+
