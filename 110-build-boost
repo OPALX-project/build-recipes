@@ -4,44 +4,57 @@
 P=boost
 V=${BOOST_VERSION:-1_68_0}
 
+DOWNLOAD_URL="https://netcologne.dl.sourceforge.net/project/$P/$P/${V//_/.}/${P}_$V.tar.gz"
+test -n "${TOOLSET}" || TOOLSET='gcc'
+
 # download
 test -r "${DOWNLOADS_DIR}/${P}_$V.tar.gz"  || \
-        curl -L \
-                --output "$_" \
-                "https://netcologne.dl.sourceforge.net/project/$P/$P/${V//_/.}/${P}_$V.tar.gz"
+        curl -L --output "$_" "${DOWNLOAD_URL}"
 
 # unpack
 mkdir -p "${SRC_DIR}/$P" && cd "$_"
 tar xvf "${DOWNLOADS_DIR}/${P}_$V.tar.gz"
+cd "${SRC_DIR}/$P/${P}_$V" 
+patch -p1 <<EOF
+--- src.orig/libs/context/build/Jamfile.v2	2018-08-01 22:50:46.000000000 +0200
++++ src/libs/context/build/Jamfile.v2	2018-11-30 10:06:57.000000000 +0100
+@@ -613,6 +613,17 @@
+      <address-model>64
+      <architecture>x86
+      <binary-format>mach-o
++     <toolset>gcc
++   ;
++
++alias asm_sources
++   : asm/make_x86_64_sysv_macho_gas.S
++     asm/jump_x86_64_sysv_macho_gas.S
++     asm/ontop_x86_64_sysv_macho_gas.S
++   : <abi>sysv
++     <address-model>64
++     <architecture>x86
++     <binary-format>mach-o
+      <toolset>darwin
+    ;
+EOF
 
 # configure
-test -n "${TOOLSET}" || TOOLSET='gcc'
-
 mkdir -p "${SRC_DIR}/$P/build"
 cd "${SRC_DIR}/$P/${P}_$V" 
 ./bootstrap.sh \
         --prefix="${PREFIX}" \
-        --with-libraries=all \
-        --with-toolset=${TOOLSET}
+        --with-toolset=${TOOLSET} \
+        --without-libraries=python \
+        || exit 1
+        echo "using mpi ;" >> "./project-config.jam"
 
 # compile & install
 ./b2 \
-        --build-type=minimal \
-        --build-dir=""${SRC_DIR}/$P/build"" \
+        --build-dir="${BUILD_DIR}" \
         --layout=system \
-        --without-mpi \
-        toolset="${TOOLSET}" \
+        --without-python \
+        toolset=${TOOLSET} \
         variant=release \
         link=shared,static \
         threading=multi \
-        stage
-./b2 \
-        --build-type=minimal \
-        --build-dir=""${SRC_DIR}/$P/build"" \
-        --layout=system \
-        --without-mpi \
-        toolset="${TOOLSET}" \
-        variant=release \
-        link=shared,static \
-        threading=multi \
-        install
+        install -j 3 \
+        || exit 1
