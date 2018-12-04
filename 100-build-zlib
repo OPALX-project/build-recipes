@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# recipe for:
+P=zlib
+V=${ZLIB_VERSION:-1.2.11}
+
+DOWNLOAD_URL="https://zlib.net/$P-$V.tar.gz"
+
+# download
+test -r "${DOWNLOADS_DIR}/$P-$V.tar.gz" || \
+        curl -L --output "$_" "${DOWNLOAD_URL}"
+
+# unpack
+mkdir -p "${SRC_DIR}/$P" && cd "$_"
+tar xvf "${DOWNLOADS_DIR}/$P-$V.tar.gz"
+
+# configure
+mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
+"${SRC_DIR}/$P/$P-$V/configure" \
+        --prefix="${PREFIX}" \
+
+# compile & install
+make -j ${NJOBS}
+make install
