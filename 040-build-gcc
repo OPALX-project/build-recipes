@@ -10,6 +10,9 @@ test -r "${DOWNLOADS_DIR}/$P-$V.tar.gz" || \
                 --output "$_" \
                 "https://ftp.gnu.org/gnu/$P/$P-$V/$P-$V.tar.gz"
 
+# GCC on Linux tries to create $PREFIX/lib64. This fails it is a sym-link
+rm -v "${PREFIX}/lib64"
+
 # unpack
 mkdir -p "${SRC_DIR}/$P" && cd "$_"
 tar xvf "${DOWNLOADS_DIR}/$P-$V.tar.gz"
@@ -26,7 +29,18 @@ mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
         --disable-multilib \
         --with-build-config=bootstrap-debug
 
+
+
 # compile & install
 make -j 2
 make install
+
+# move files from "${PREFIX}/lib64" to "${PREFIX}/lib"
+# and recreate sym-link
+shopt -s nullglob
+if [[ -n "${PREFIX}/lib64/*" ]]; then
+	mv -v  "${PREFIX}/lib64/"*  "${PREFIX}/lib"
+	rmdir "${PREFIX}/lib64"
+fi
+( cd $PREFIX; ln -s lib lib64;)
 
