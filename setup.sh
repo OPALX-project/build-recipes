@@ -22,4 +22,5 @@ mkdir -p "${PREFIX}/lib"
 mkdir -p "${DOWNLOADS_DIR}"
 mkdir -p "${SRC_DIR}"
 
-ln -fs ../lib $PREFIX/lib64
+( cd $PREFIX; ln -s lib lib64;)
+
