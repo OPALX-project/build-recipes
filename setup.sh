@@ -2,10 +2,10 @@
 
 # this file must be sourced *NOT* executed
 
-export PREFIX="${HOME}/OPAL"
-export DOWNLOADS_DIR="${PREFIX}/Downloads"
+#export PREFIX="${PREFIX-${HOME}/OPAL}"
+export DOWNLOADS_DIR="${PREFIX:=${HOME}/OPAL}/Downloads"
 export SRC_DIR="${PREFIX}/src"
-
+export PREFIX
 PATH="${PREFIX}/bin:${PATH}"
 
 export C_INCLUDE_PATH="${PREFIX}/include"
@@ -22,5 +22,5 @@ mkdir -p "${PREFIX}/lib"
 mkdir -p "${DOWNLOADS_DIR}"
 mkdir -p "${SRC_DIR}"
 
-( cd $PREFIX; ln -s lib lib64;)
+( cd $PREFIX; ln -fs lib lib64;)
 
