@@ -4,11 +4,11 @@
 P=gsl
 V=${GSL_VERSION:-2.5}
 
+DOWNLOAD_URL="ftp://ftp.gnu.org/gnu/$P/$P-$V.tar.gz"
+
 # download
 test -r "${DOWNLOADS_DIR}/$P-$V.tar.gz" || \
-        curl -L \
-                --output "$_" \
-                "ftp://ftp.gnu.org/gnu/$P/$P-$V.tar.gz"
+        curl -L --output "$_" "${DOWNLOAD_URL}"
 
 # unpack
 mkdir -p "${SRC_DIR}/$P" && cd "$_"

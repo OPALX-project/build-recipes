@@ -4,11 +4,11 @@
 P=openmpi
 V=${OPENMPI_VERSION:-3.1.2}
 
+DOWNLOAD_URL="http://www.open-mpi.org/software/ompi/v${V%.*}/downloads/$P-$V.tar.bz2"
+
 # Download
 test -r "${DOWNLOADS_DIR}/$P-$V.tar.bz2" || \
-        curl -L \
-                --output "$_" \
-                "http://www.open-mpi.org/software/ompi/v${V%.*}/downloads/$P-$V.tar.bz2"
+        curl -L --output "$_" "${DOWNLOAD_URL}"
 
 # Unpack
 mkdir -p "${SRC_DIR}/$P" && cd "$_"
