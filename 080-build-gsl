@@ -4,15 +4,16 @@
 P=gsl
 V=${GSL_VERSION:-2.5}
 
-DOWNLOAD_URL="ftp://ftp.gnu.org/gnu/$P/$P-$V.tar.gz"
+FNAME="$P-$V.tar.gz"
+DOWNLOAD_URL="ftp://ftp.gnu.org/gnu/$P/${FNAME}"
+SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
 
 # download
-test -r "${DOWNLOADS_DIR}/$P-$V.tar.gz" || \
-        curl -L --output "$_" "${DOWNLOAD_URL}"
+test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}"
 
 # unpack
 mkdir -p "${SRC_DIR}/$P" && cd "$_"
-tar xvf "${DOWNLOADS_DIR}/$P-$V.tar.gz"
+tar xvf "${SRC_FILE}"
 
 # configure
 mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
@@ -23,4 +24,3 @@ mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
 # compile & install
 make -j ${NJOBS}
 make install
-

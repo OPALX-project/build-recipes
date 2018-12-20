@@ -4,15 +4,16 @@
 P=hdf5
 V=${HDF5_VERSION:-1.10.3}
 
-DOWNLOAD_URL="https://support.hdfgroup.org/ftp/HDF5/releases/$P-${V%.*}/$P-$V/src/$P-$V.tar.bz2"
+FNAME="$P-$V.tar.gz"
+DOWNLOAD_URL="https://support.hdfgroup.org/ftp/HDF5/releases/$P-${V%.*}/$P-$V/src/${FNAME}"
+SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
 
 # download
-test -r "${DOWNLOADS_DIR}/$P-$V.tar.bz2"  ||
-        curl -L --output "$_" "${DOWNLOAD_URL}"
+test -r "${SRC_FILE}"  || curl -L --output "$_" "${DOWNLOAD_URL}"
 
 # unpack
 mkdir -p "${SRC_DIR}/$P" && cd "$_"
-tar xvf "${DOWNLOADS_DIR}/$P-$V.tar.bz2"
+tar xvf "${SRC_FILE}"
 
 # configure
 mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
@@ -27,4 +28,3 @@ CC=mpicc CXX=mpicxx FC=mpifort "${SRC_DIR}/$P/$P-$V/configure" \
 # compile and install
 make -j ${NJOBS}
 make install
-

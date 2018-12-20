@@ -4,16 +4,18 @@
 P=boost
 V=${BOOST_VERSION:-1_68_0}
 
-DOWNLOAD_URL="https://netcologne.dl.sourceforge.net/project/$P/$P/${V//_/.}/${P}_$V.tar.gz"
+FNAME="${P}_$V.tar.gz"
+DOWNLOAD_URL="https://netcologne.dl.sourceforge.net/project/$P/$P/${V//_/.}/${FNAME}"
+SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
+
 test -n "${TOOLSET}" || TOOLSET='gcc'
 
 # download
-test -r "${DOWNLOADS_DIR}/${P}_$V.tar.gz"  || \
-        curl -L --output "$_" "${DOWNLOAD_URL}"
+test -r "${SRC_FILE}"  || curl -L --output "$_" "${DOWNLOAD_URL}"
 
 # unpack
 mkdir -p "${SRC_DIR}/$P" && cd "$_"
-tar xvf "${DOWNLOADS_DIR}/${P}_$V.tar.gz"
+tar xvf "${SRC_FILE}"
 cd "${SRC_DIR}/$P/${P}_$V" 
 patch -p1 <<EOF
 --- src.orig/libs/context/build/Jamfile.v2	2018-08-01 22:50:46.000000000 +0200

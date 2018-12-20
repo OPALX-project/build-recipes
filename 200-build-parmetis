@@ -4,15 +4,16 @@
 P=parmetis
 V=${PARMETIS_VERSION:-4.0.3}
 
-DOWNLOAD_URL="http://glaros.dtc.umn.edu/gkhome/fetch/sw/$P/$P-$V.tar.gz"
+FNAME="$P-$V.tar.gz"
+DOWNLOAD_URL="http://glaros.dtc.umn.edu/gkhome/fetch/sw/$P/${FNAME}"
+SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
 
 # download
-test -r "${DOWNLOADS_DIR}/${P}_$V.tar.gz"  || \
-        curl -L --output "${DOWNLOAD_URL}"
+test -r "${SRC_FILE}"  || curl -L --output "$_" "${DOWNLOAD_URL}"
 
 # unpack
 mkdir -p "${SRC_DIR}/$P" && cd "$_"
-tar xvf "${DOWNLOADS_DIR}/$P-$V.tar.gz"
+tar xvf "${SRC_FILE}"
 
 # configure
 mkdir -p "${SRC_DIR}/$P/build" && cd "$_"

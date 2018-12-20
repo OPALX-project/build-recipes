@@ -5,19 +5,20 @@
 P=cmake
 V=${CMAKE_VERSION:-3.11.4}
 
-DOWNLOAD_URL="https://cmake.org/files/v${V%.*}/$P-$V.tar.gz"
+FNAME="$P-$V.tar.gz"
+DOWNLOAD_URL="https://cmake.org/files/v${V%.*}/${FNAME}"
+SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
 
 #
 # Download
 #
-test -r "${DOWNLOADS_DIR}/$P-$V.tar.gz" || \
-        curl -L --output "$_" ${DOWNLOAD_URL}"
+test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}"
 
 #
 # Unpack
 #
 mkdir -p "${SRC_DIR}/$P" && cd "$_"
-tar xvf "${DOWNLOADS_DIR}/$P-$V.tar.gz"
+tar xvf "${SRC_FILE}"
 
 #
 # Configure
