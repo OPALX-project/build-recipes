@@ -8,7 +8,7 @@ DOWNLOAD_URL="http://amas.web.psi.ch/Downloads/$P/$P-$V.tar.gz"
 
 # download
 test -r "${DOWNLOADS_DIR}/$P-$V.tar.gz" || \
-        curl -L --output "${DOWNLOAD_URL}"
+        curl -L --output "$_" "${DOWNLOAD_URL}"
 
 # unpack
 mkdir -p "${SRC_DIR}/$P" && cd "$_"
