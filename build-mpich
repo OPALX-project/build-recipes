@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# recipe for:
+P=mpich
+V=${MPICH_VERSION:-3.3}
+
+FNAME="$P-$V.tar.gz"
+DOWNLOAD_URL="http://www.mpich.org/static/downloads/$V/${FNAME}"
+SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
+
+# Download
+test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}"
+
+# Unpack
+mkdir -p "${SRC_DIR}/$P" && cd "$_"
+tar xvf "${SRC_FILE}"
+
+# Configure
+mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
+"${SRC_DIR}/$P/$P-$V/configure" \
+                --prefix="${PREFIX}" \
+		--enable-cxx \
+		--disable-fortran
+
+# Compile and install
+make -j ${NJOBS}
+make install
+
