@@ -2,7 +2,7 @@
 
 # this file must be sourced *NOT* executed
 
-#export PREFIX="${PREFIX-${HOME}/OPAL}"
+export PREFIX="${PREFIX-${HOME}/OPAL}"
 export DOWNLOADS_DIR="${PREFIX:=${HOME}/OPAL}/Downloads"
 export SRC_DIR="${PREFIX}/src"
 export PREFIX
