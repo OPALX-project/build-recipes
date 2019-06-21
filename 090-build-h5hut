@@ -2,7 +2,7 @@
 
 # recipe for:
 P=H5hut
-V=${H5HUT_VERSION:-2.0.0rc4}
+V=${H5HUT_VERSION:-2.0.0rc6}
 
 FNAME="$P-$V.tar.gz"
 DOWNLOAD_URL="http://amas.web.psi.ch/Downloads/$P/${FNAME}"
