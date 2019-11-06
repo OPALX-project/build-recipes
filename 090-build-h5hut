@@ -2,7 +2,7 @@
 
 # recipe for:
 P=H5hut
-V=${H5HUT_VERSION:-2.0.0rc4}
+V=${H5HUT_VERSION:-2.0.0rc6}
 
 FNAME="$P-$V.tar.gz"
 DOWNLOAD_URL="http://amas.web.psi.ch/Downloads/$P/${FNAME}"
@@ -14,6 +14,8 @@ test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}"
 # unpack
 mkdir -p "${SRC_DIR}/$P" && cd "$_"
 tar xvf "${SRC_FILE}"
+cd "${SRC_DIR}/$P/$P-$V"
+./autogen.sh || exit 1
 
 # configure
 mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
