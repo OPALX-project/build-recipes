@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# recipe for:
+P=googletest
+V=${GTEST_VERSION:-1.8.1}
+
+FNAME="$P-release-$V.tar.gz"
+DOWNLOAD_URL="https://github.com/google/googletest/archive/release-$V/${FNAME}"
+SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
+
+# download
+test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}"
+
+# unpack
+mkdir -p "${SRC_DIR}/$P" && cd "$_"
+tar xvf "${SRC_FILE}"
+
+# configure
+mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
+cmake \
+	-DCMAKE_INSTALL_PREFIX="${PREFIX}" \
+        -DCMAKE_BUILD_TYPE=RELEASE \
+	"${SRC_DIR}/$P/$P-release-$V"
+
+# compile and install
+make -j ${NJOBS}
+make install
+
