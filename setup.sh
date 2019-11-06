@@ -2,10 +2,10 @@
 
 # this file must be sourced *NOT* executed
 
-#export PREFIX="${PREFIX-${HOME}/OPAL}"
-export DOWNLOADS_DIR="${PREFIX:=${HOME}/OPAL}/Downloads"
-export SRC_DIR="${PREFIX}/src"
-export PREFIX
+export PREFIX="${PREFIX:-${HOME}/OPAL}"
+export DOWNLOADS_DIR="${DOWNLOADS_DIR:-${PREFIX}/Downloads}"
+export SRC_DIR="${SRC_DIR:-${PREFIX}/src}"
+
 PATH="${PREFIX}/bin:${PATH}"
 
 export C_INCLUDE_PATH="${PREFIX}/include"
@@ -16,7 +16,7 @@ export LD_LIBRARY_PATH="${PREFIX}/lib:${PREFIX}/lib64"
 export BOOST_DIR="${PREFIX}"
 export BOOST_ROOT="${PREFIX}"
 
-export NJOBS=4
+export NJOBS="${NJOBS:-4}"
 
 mkdir -p "${PREFIX}/lib"
 mkdir -p "${DOWNLOADS_DIR}"
