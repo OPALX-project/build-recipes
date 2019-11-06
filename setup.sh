@@ -2,9 +2,14 @@
 
 # this file must be sourced *NOT* executed
 
+my_dir=$(dirname "${BASH_SOURCE}")
+
+source "${my_dir}/config.sh"
+
 export PREFIX="${PREFIX:-${HOME}/OPAL}"
 export DOWNLOADS_DIR="${DOWNLOADS_DIR:-${PREFIX}/Downloads}"
 export SRC_DIR="${SRC_DIR:-${PREFIX}/src}"
+export NJOBS="${NJOBS:-4}"
 
 PATH="${PREFIX}/bin:${PATH}"
 
@@ -16,7 +21,6 @@ export LD_LIBRARY_PATH="${PREFIX}/lib:${PREFIX}/lib64"
 export BOOST_DIR="${PREFIX}"
 export BOOST_ROOT="${PREFIX}"
 
-export NJOBS="${NJOBS:-4}"
 
 mkdir -p "${PREFIX}/lib"
 mkdir -p "${DOWNLOADS_DIR}"
