@@ -2,7 +2,7 @@
 
 # recipe for:
 P=boost
-V=${BOOST_VERSION:-1_68_0}
+V=${BOOST_VERSION:-1_70_0}
 
 FNAME="${P}_$V.tar.gz"
 DOWNLOAD_URL="https://netcologne.dl.sourceforge.net/project/$P/$P/${V//_/.}/${FNAME}"
