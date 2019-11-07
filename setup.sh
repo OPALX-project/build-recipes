@@ -4,13 +4,12 @@
 
 my_dir=$(dirname "${BASH_SOURCE}")
 
-source "${my_dir}/config.sh"
+test -r "${my_dir}/config.sh" && source "$_"
 
-export PREFIX="${PREFIX:-${HOME}/OPAL}"
-export DOWNLOADS_DIR="${DOWNLOADS_DIR:-${PREFIX}/Downloads}"
-export SRC_DIR="${SRC_DIR:-${PREFIX}/src}"
-export NJOBS="${NJOBS:-4}"
-
+export PREFIX="${PREFIX-${HOME}/OPAL}"
+export DOWNLOADS_DIR="${PREFIX:=${HOME}/OPAL}/Downloads"
+export SRC_DIR="${PREFIX}/src"
+export PREFIX
 PATH="${PREFIX}/bin:${PATH}"
 
 export C_INCLUDE_PATH="${PREFIX}/include"
@@ -26,5 +25,6 @@ mkdir -p "${PREFIX}/lib"
 mkdir -p "${DOWNLOADS_DIR}"
 mkdir -p "${SRC_DIR}"
 
-( cd $PREFIX; ln -fs lib lib64;)
-
+if [[ "$(uname -s)" == "Linux" ]]; then
+	( cd $PREFIX; ln -fs lib lib64;)
+fi

@@ -1,8 +1,13 @@
 #!/bin/bash
 
+if [[ -n "${TOOLSET}" ]] &&  [[ "${TOOLSET}" != "gcc" ]]; then
+        echo "TOOLSET is set to '${TOOLSET}' - skipping compilation of gcc" 1>&2
+        exit 0
+fi
+
 # recipe for:
 P=gcc
-V=${GCC_VERSION:-7.3.0}
+V=${GCC_VERSION:-7.4.0}
 
 FNAME="$P-$V.tar.gz"
 DOWNLOAD_URL="https://ftp.gnu.org/gnu/$P/$P-$V/${FNAME}"

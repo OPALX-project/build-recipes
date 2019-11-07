@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ -n "${TOOLSET}" ]] &&  [[ "${TOOLSET}" != "gcc" ]]; then
+        echo "TOOLSET is set to '${TOOLSET}' - skipping compilation of mpfr" 1>&2
+        exit 0
+fi
+
 # recipe for:
 P=mpfr
 V=${MPFR_VERSION:=4.0.1}

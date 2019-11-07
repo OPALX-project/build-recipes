@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ -n "${TOOLSET}" ]] &&  [[ "${TOOLSET}" != "gcc" ]]; then
+        echo "TOOLSET is set to '${TOOLSET}' - skipping compilation of gmp" 1>&2
+        exit 0
+fi
+
 # recipe for:
 P=gmp
 V=${GMP_VERSION:-6.1.2}

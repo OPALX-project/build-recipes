@@ -2,7 +2,7 @@
 
 # recipe for:
 P=gsl
-V=${GSL_VERSION:-2.5}
+V=${GSL_VERSION:-2.6}
 
 FNAME="$P-$V.tar.gz"
 DOWNLOAD_URL="ftp://ftp.gnu.org/gnu/$P/${FNAME}"
