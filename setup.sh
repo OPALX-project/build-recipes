@@ -2,6 +2,10 @@
 
 # this file must be sourced *NOT* executed
 
+my_dir=$(dirname "${BASH_SOURCE}")
+
+test -r "${my_dir}/config.sh" && source "$_"
+
 export PREFIX="${PREFIX-${HOME}/OPAL}"
 export DOWNLOADS_DIR="${PREFIX:=${HOME}/OPAL}/Downloads"
 export SRC_DIR="${PREFIX}/src"
@@ -22,5 +26,6 @@ mkdir -p "${PREFIX}/lib"
 mkdir -p "${DOWNLOADS_DIR}"
 mkdir -p "${SRC_DIR}"
 
-( cd $PREFIX; ln -fs lib lib64;)
-
+if [[ "$(uname -s)" == "Linux" ]]; then
+	( cd $PREFIX; ln -fs lib lib64;)
+fi
