@@ -3,7 +3,7 @@
 # Recipe for
 #
 P=cmake
-V=${CMAKE_VERSION:-3.11.4}
+V=${CMAKE_VERSION:-3.15.5}
 
 FNAME="$P-$V.tar.gz"
 DOWNLOAD_URL="https://cmake.org/files/v${V%.*}/${FNAME}"
