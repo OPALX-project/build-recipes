@@ -1,6 +1,23 @@
 export TOOLSET=clang
 export MPI_IMPLEMENTATION=openmpi
+export PREFIX="${PREFIX:-${HOME}/OPAL-${TOOLSET}-${MPI_IMPLEMENTATION}}"
 
-export PREFIX="${PREFIX:-${HOME}/OPAL-clang-openmpi}"
+#export MACOSX_DEPLOYMENT_TARGET=10.14
 
-test -r "$(dirname '${BASH_SOURCE}')/setup.sh" && source "$_"
+declare dir="$(cd $(dirname '${dir}'); pwd)"
+
+declare -xa recipes=(
+	${dir}/050-build-cmake
+	${dir}/060-build-open-mpi
+	${dir}/070-build-hdf5
+	${dir}/080-build-gsl
+	${dir}/090-build-h5hut
+	${dir}/100-build-zlib
+	${dir}/110-build-boost
+	${dir}/200-build-parmetis
+	${dir}/210-build-openblas
+	${dir}/220-build-trilinos
+	${dir}/300-build-gtest)
+
+test -r "${dir}/setup.sh" && source "$_"
+
