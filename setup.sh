@@ -5,7 +5,9 @@
 export PREFIX="${PREFIX:-${HOME}/OPAL}"
 export DOWNLOADS_DIR="${PREFIX}/Downloads"
 export SRC_DIR="${PREFIX}/src"
-PATH="${PREFIX}/bin:${PATH}"
+export PATH="${PREFIX}/bin:${PATH}"
+
+test -z "${TOOLSET}" && export TOOLSET='gcc'
 
 export C_INCLUDE_PATH="${PREFIX}/include"
 export CPLUS_INCLUDE_PATH="${PREFIX}/include"
@@ -26,3 +28,8 @@ if [[ "$(uname -s)" == "Linux" ]]; then
 	LIBRARY_PATH+=":${PREFIX}/lib64"
 	LD_LIBRARY_PATH+=":${PREFIX}/lib64"
 fi
+
+echo "Using:"
+echo "    Prefix:             ${PREFIX}"
+echo "    Toolset:            ${TOOLSET}"
+echo "    MPI implementation: ${MPI_IMPLEMENTATION}"
