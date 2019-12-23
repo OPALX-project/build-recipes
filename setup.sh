@@ -3,8 +3,8 @@
 # this file must be sourced *NOT* executed
 
 export PREFIX="${PREFIX:-${HOME}/OPAL}"
-export DOWNLOADS_DIR="${PREFIX}/Downloads"
-export SRC_DIR="${PREFIX}/src"
+export DOWNLOADS_DIR="${PREFIX}/tmp/Downloads"
+export SRC_DIR="${PREFIX}/tmp/src"
 export PATH="${PREFIX}/bin:${PATH}"
 
 test -z "${TOOLSET}" && export TOOLSET='gcc'
