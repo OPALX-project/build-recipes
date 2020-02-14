@@ -22,7 +22,7 @@ if [[ -n "$1" ]]; then
 fi
 
 [[ -z "${TOOLSET}" ]] && echo "TOOLSET not set, using gcc!" 1>&2
-[[ -z "${MPI_IMPLEMANTATION}" ]] && echo "MPI_IMPLEMENTATION not set, using openmpi!" 1>&2
+[[ -z "${MPI_IMPLEMENTATION}" ]] && echo "MPI_IMPLEMENTATION not set, using openmpi!" 1>&2
 
 for ((i=0; i<${#recipes[@]}; i++)); do
     recipes[i]="${my-dir}/${recipes[i]}"
@@ -30,7 +30,7 @@ done
 
 unset my_dir
 
-export PREFIX="${PREFIX:-${HOME}/OPAL-${TOOLSET}${TOOLSET_SUFFIX}-${MPI_IMPLEMENTATION}"
+export PREFIX="${PREFIX:-${HOME}/OPAL-${TOOLSET}${TOOLSET_SUFFIX}-${MPI_IMPLEMENTATION}}"
 export DOWNLOADS_DIR="${PREFIX}/tmp/Downloads"
 export SRC_DIR="${PREFIX}/tmp/src"
 export PATH="${PREFIX}/bin:${PATH}"

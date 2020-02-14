@@ -1,7 +1,7 @@
 export TOOLSET=gcc
 export MPI_IMPLEMENTATION=openmpi
 
-declare -ra recipes=(
+declare -a recipes=(
 	010-build-gmp
 	020-build-mpfr
 	030-build-mpc
