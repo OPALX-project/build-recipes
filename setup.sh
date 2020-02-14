@@ -1,7 +1,7 @@
 #!/bin/bash
 
 declare my_dir=$(dirname "${BASH_SOURCE[0]}")
-declare -r my_dir=$(cd "${my_dir}"; pwd)
+my_dir=$(cd "${my_dir}"; pwd)
 
 usage(){
 	echo "
@@ -22,11 +22,13 @@ if [[ -n "$1" ]]; then
 fi
 
 [[ -z "${TOOLSET}" ]] && echo "TOOLSET not set, using gcc!" 1>&2
-[[ -z "${MPI_IMPLEMANTATION}" ]] && echo "MPI_IMPLEMENTATION not set, using open-mpi!" 1>&2
+[[ -z "${MPI_IMPLEMANTATION}" ]] && echo "MPI_IMPLEMENTATION not set, using openmpi!" 1>&2
 
 for ((i=0; i<${#recipes[@]}; i++)); do
     recipes[i]="${my-dir}/${recipes[i]}"
 done
+
+unset my_dir
 
 export PREFIX="${PREFIX:-${HOME}/OPAL-${TOOLSET}${TOOLSET_SUFFIX}-${MPI_IMPLEMENTATION}"
 export DOWNLOADS_DIR="${PREFIX}/tmp/Downloads"
