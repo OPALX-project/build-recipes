@@ -7,7 +7,7 @@ declare -a recipes=(
 	030-build-mpc
 	040-build-gcc
 	050-build-cmake
-	060-build-open-mpi
+	060-build-openmpi
 	070-build-hdf5
 	080-build-gsl
 	090-build-h5hut

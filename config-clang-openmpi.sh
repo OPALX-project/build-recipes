@@ -5,7 +5,7 @@ export MPI_IMPLEMENTATION=openmpi
 
 declare -a recipes=(
 	050-build-cmake
-	060-build-open-mpi
+	060-build-openmpi
 	070-build-hdf5
 	080-build-gsl
 	090-build-h5hut
