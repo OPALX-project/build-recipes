@@ -2,9 +2,9 @@ export TOOLSET=gcc
 export TOOLSET_SUFFIX='-mp-9'
 export MPI_IMPLEMENTATION=openmpi
 
-declare -ra recipes=(
+declare -a recipes=(
 	050-build-cmake
-	060-build-openmpi
+	060-build-open-mpi
 	070-build-hdf5
 	080-build-gsl
 	090-build-h5hut
