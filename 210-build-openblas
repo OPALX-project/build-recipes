@@ -7,7 +7,7 @@
 
 # recipe for:
 P=OpenBLAS
-V=${OPENBLAS_VERSION:-0.3.7}
+V=${OPENBLAS_VERSION:-0.3.9}
 
 FNAME="v$V.tar.gz"
 DOWNLOAD_URL="http://github.com/xianyi/$P/archive/${FNAME}"

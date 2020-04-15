@@ -7,7 +7,7 @@ fi
 
 # recipe for:
 P=openmpi
-V=${OPENMPI_VERSION:-3.1.4}
+V=${OPENMPI_VERSION:-3.1.6}
 
 FNAME="$P-$V.tar.gz"
 DOWNLOAD_URL="http://www.open-mpi.org/software/ompi/v${V%.*}/downloads/${FNAME}"
