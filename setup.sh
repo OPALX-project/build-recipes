@@ -25,7 +25,7 @@ fi
 [[ -z "${MPI_IMPLEMENTATION}" ]] && echo "MPI_IMPLEMENTATION not set, using openmpi!" 1>&2
 
 for ((i=0; i<${#recipes[@]}; i++)); do
-    recipes[i]="${my-dir}/${recipes[i]}"
+    recipes[i]="${my_dir}/${recipes[i]}"
 done
 
 unset my_dir
