@@ -3,7 +3,7 @@ export MPI_IMPLEMENTATION=openmpi
 
 #export MACOSX_DEPLOYMENT_TARGET=10.14
 
-declare -ra recipes=(
+declare -a recipes=(
 	050-build-cmake
 	060-build-open-mpi
 	070-build-hdf5
