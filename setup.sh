@@ -25,8 +25,12 @@ fi
 # TOOLSET is used in the boost build recipe
 #
 if [[ -z "${TOOLSET}" ]]; then
-	echo "TOOLSET not set, using gcc!" 1>&2
-	export TOOLSET='gcc'
+	if [[ $(uname -s) == 'Darwin' ]]; then
+		export TOOLSET='clang'
+	else
+		export TOOLSET='gcc'
+	fi
+	echo "TOOLSET not set, using '${TOOLSET}'!" 1>&2
 fi
 
 for ((i=0; i<${#recipes[@]}; i++)); do
