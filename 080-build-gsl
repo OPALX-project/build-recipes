@@ -9,18 +9,18 @@ DOWNLOAD_URL="ftp://ftp.gnu.org/gnu/$P/${FNAME}"
 SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
 
 # download
-test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}"
+test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${BUILD_ERR_DOWNLOAD}
 
 # unpack
-mkdir -p "${SRC_DIR}/$P" && cd "$_"
-tar xvf "${SRC_FILE}"
+mkdir -p "${SRC_DIR}/$P" && cd "$_" || exit ${BUILD_ERR_SETUP}
+tar xvf "${SRC_FILE}" || exit ${BUILD_ERR_UNTAR}
 
 # configure
-mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
+mkdir -p "${SRC_DIR}/$P/build" && cd "$_" || exit ${BUILD_ERR_SETUP}
 "${SRC_DIR}/$P/$P-$V/configure" \
                 --prefix="${PREFIX}" \
-                --disable-shared
+                --disable-shared || exit ${BUILD_ERR_CONFIGURE}
 
 # compile & install
-make -j ${NJOBS}
-make install
+make -j ${NJOBS} || exit ${BUILD_ERR_MAKE}
+make install || exit ${BUILD_ERR_INSTALL}

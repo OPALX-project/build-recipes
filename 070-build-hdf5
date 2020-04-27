@@ -9,22 +9,22 @@ DOWNLOAD_URL="https://support.hdfgroup.org/ftp/HDF5/releases/$P-${V%.*}/$P-$V/sr
 SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
 
 # download
-test -r "${SRC_FILE}"  || curl -L --output "$_" "${DOWNLOAD_URL}"
+test -r "${SRC_FILE}"  || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${BUILD_ERR_DOWNLOAD}
 
 # unpack
-mkdir -p "${SRC_DIR}/$P" && cd "$_"
-tar xvf "${SRC_FILE}"
+mkdir -p "${SRC_DIR}/$P" && cd "$_" || exit ${BUILD_ERR_SETUP}
+tar xvf "${SRC_FILE}" || exit ${BUILD_ERR_UNTAR}
 
 # configure
-mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
+mkdir -p "${SRC_DIR}/$P/build" && cd "$_" || exit ${BUILD_ERR_SETUP}
 CC=mpicc CXX=mpicxx FC=mpifort "${SRC_DIR}/$P/$P-$V/configure" \
         --prefix="${PREFIX}" \
         --enable-shared \
         --enable-parallel \
         --enable-cxx \
         --enable-unsupported \
-        --with-pic
+        --with-pic || exit ${BUILD_ERR_CONFIGURE}
 
 # compile and install
-make -j ${NJOBS}
-make install
+make -j ${NJOBS} || exit ${BUILD_ERR_MAKE}
+make install || exit ${BUILD_ERR_INSTALL}

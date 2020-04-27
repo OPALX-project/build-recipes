@@ -3,12 +3,21 @@
 declare my_dir=$(dirname "${BASH_SOURCE[0]}")
 my_dir=$(cd "${my_dir}"; pwd)
 
+declare -ix BUILD_ERR_ARG=1
+declare -ix BUILD_ERR_SETUP=2
+declare -ix BUILD_ERR_SYSTEM=3
+declare -ix BUILD_ERR_DOWNLOAD=4
+declare -ix BUILD_ERR_UNTAR=5
+declare -ix BUILD_ERR_CONFIGURE=6
+declare -ix BUILD_ERR_MAKE=7
+declare -ix BUILD_ERR_INSTALL=8
+
 usage(){
 	echo "
 Usage:
-    source ${BASH_SOURCE[0]} CONFIG_FILE
+    source ${BASH_SOURCE[0]} [--prefix DIR] [CONFIG_FILE]
 " 1>&2
-	return 1
+	return ${BUILD_ERR_ARG}
 }
 
 if [[ $_ == $0 ]]; then
@@ -17,9 +26,31 @@ if [[ $_ == $0 ]]; then
 	exit $?
 fi
 
-if [[ -n "$1" ]]; then
-	source "$1"
-fi
+while (($# > 0)); do
+	case $1 in
+	--prefix )
+		PREFIX="$2"
+		shift 1
+		;;
+	-h | --help | -\? )
+		usage
+		return $?
+		;;
+	-* )
+		echo "Illegal option -- $1" 1>&2
+		usage
+		return $?
+		;;
+	* )
+		if [[ ! -r "$1" ]]; then
+			echo "File doesn't exist or is not readable -- $1" 1>&2
+			return ${BUILD_ERR_ARG}
+		fi
+		source "$1" || return ${BUILD_ERR_SETUP}
+		;;
+	esac
+	shift 1
+done
 
 #
 # TOOLSET is used in the boost build recipe
@@ -56,12 +87,10 @@ ncores=$(getconf _NPROCESSORS_ONLN)
 [[ ${ncores} > 10 ]] && ncores=10
 export NJOBS=${NJOBS:-${ncores}}
 
-mkdir -p "${PREFIX}/lib"
-mkdir -p "${DOWNLOADS_DIR}"
-mkdir -p "${SRC_DIR}"
+mkdir -p "${PREFIX}/lib" "${DOWNLOADS_DIR}" "${SRC_DIR}" || return ${BUILD_ERR_SETUP}
 
 if [[ "$(uname -s)" == "Linux" ]]; then
-	( cd $PREFIX; ln -fs lib lib64;)
+	( cd "${PREFIX}" && ln -fs lib lib64 || return ${BUILD_ERR_SETUP};)
 	LIBRARY_PATH+=":${PREFIX}/lib64"
 	LD_LIBRARY_PATH+=":${PREFIX}/lib64"
 fi

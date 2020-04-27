@@ -9,13 +9,13 @@ DOWNLOAD_URL="http://amas.web.psi.ch/Downloads/$P/${FNAME}"
 SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
 
 # download
-test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}"
+test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${BUILD_ERR_DOWNLOAD}
 
 # unpack
-mkdir -p "${SRC_DIR}/$P" && cd "$_"
-tar xvf "${SRC_FILE}"
-cd "${SRC_DIR}/$P/$P-$V"
-./autogen.sh || exit 1
+mkdir -p "${SRC_DIR}/$P" && cd "$_" || exit ${BUILD_ERR_SETUP}
+tar xvf "${SRC_FILE}" || exit ${BUILD_ERR_UNTAR}
+cd "${SRC_DIR}/$P/$P-$V" || exit ${BUILD_ERR_SETUP}
+./autogen.sh || exit ${BUILD_ERR_CONFIGURE}
 
 # configure
 mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
@@ -23,9 +23,9 @@ CC=mpicc CXX=mpicxx "${SRC_DIR}/$P/$P-$V/configure" \
         --prefix="${PREFIX}" \
         --enable-shared \
         --enable-parallel \
-        --with-pic
+        --with-pic || exit ${BUILD_ERR_CONFIGURE}
 
 # compile and install
-make -j ${NJOBS}
-make install
+make -j ${NJOBS} || exit ${BUILD_ERR_MAKE}
+make install || exit ${BUILD_ERR_INSTALL}
 
