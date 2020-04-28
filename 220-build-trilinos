@@ -9,11 +9,11 @@ DOWNLOAD_URL="https://github.com/$P/$P/tarball/$P-release-${V//./-}"
 SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
 
 # download
-test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}"
+test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${BUILD_ERR_DOWNLOAD}
 
 # unpack
-mkdir -p "${SRC_DIR}/$P/src" && cd "$_"
-tar -xv --strip-components 1 -f "${SRC_FILE}"
+mkdir -p "${SRC_DIR}/$P/src" && cd "$_" || exit ${BUILD_ERR_SYSTEM}
+tar -xv --strip-components 1 -f "${SRC_FILE}" || exit ${BUILD_ERR_UNTAR}
 
 # configure
 OS=$(uname -s)
@@ -30,7 +30,7 @@ elif [[ "${OS}" == "Darwin" ]]; then
         config_args+=( "-DTrilinos_ENABLE_Fortran=OFF" )
 fi
 
-mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
+mkdir -p "${SRC_DIR}/$P/build" && cd "$_" || exit ${BUILD_ERR_SYSTEM}
 CC=mpicc CXX=mpicxx cmake \
         -DCMAKE_INSTALL_PREFIX:PATH="${PREFIX}" \
         -DCMAKE_CXX_FLAGS:STRING="-DMPICH_IGNORE_CXX_SEEK -fPIC" \
@@ -56,16 +56,19 @@ CC=mpicc CXX=mpicxx cmake \
         -DTrilinos_ENABLE_EpetraExt:BOOL=ON \
         -DTrilinos_ENABLE_Galeri:BOOL=ON \
         -DTrilinos_ENABLE_Ifpack:BOOL=ON \
+        -DTrilinos_ENABLE_Ifpack2:BOOL=ON \
         -DTrilinos_ENABLE_Isorropia:BOOL=ON \
         -DTrilinos_ENABLE_ML:BOOL=ON \
         -DTrilinos_ENABLE_NOX:BOOL=ON \
+	-DTrilinos_ENABLE_MueLu:BOOL=ON \
         -DTrilinos_ENABLE_Optika:BOOL=OFF \
         -DTrilinos_ENABLE_Teuchos:BOOL=ON \
         -DTrilinos_ENABLE_Tpetra:BOOL=ON \
+	-DTrilinos_ENABLE_Zoltan2:BOOL=ON \
         -DTrilinos_ENABLE_TESTS:BOOL=OFF \
         "${config_args[@]}" \
-        "${SRC_DIR}/$P/src"
+        "${SRC_DIR}/$P/src" || exit ${BUILD_ERR_CONFIGURE}
 
 # compile & install
-make -j ${NJOBS}
-make install
+make -j ${NJOBS} || exit ${BUILD_ERR_MAKE}
+make install || exit ${BUILD_ERR_INSTALL}

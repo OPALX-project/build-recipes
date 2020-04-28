@@ -9,23 +9,23 @@ DOWNLOAD_URL="http://glaros.dtc.umn.edu/gkhome/fetch/sw/$P/${FNAME}"
 SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
 
 # download
-test -r "${SRC_FILE}"  || curl -L --output "$_" "${DOWNLOAD_URL}"
+test -r "${SRC_FILE}"  || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${BUILD_ERR_DOWNLOAD}
 
 # unpack
-mkdir -p "${SRC_DIR}/$P" && cd "$_"
-tar xvf "${SRC_FILE}"
+mkdir -p "${SRC_DIR}/$P" && cd "$_" || exit ${BUILD_ERR_SYSTEM}
+tar xvf "${SRC_FILE}" || exit ${BUILD_ERR_UNTAR}
 
 # configure
-mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
+mkdir -p "${SRC_DIR}/$P/build" && cd "$_" || exit ${BUILD_ERR_SYSTEM}
 CC=mpicc CXX=mpicxx cmake \
          -D CMAKE_INSTALL_PREFIX:PATH="${PREFIX}" \
          -D METIS_PATH="${SRC_DIR}/$P/$P-$V/metis" \
          -D GKLIB_PATH="${SRC_DIR}/$P/$P-$V/metis/GKlib" \
-         "${SRC_DIR}/$P/$P-$V"
+         "${SRC_DIR}/$P/$P-$V" || exit ${BUILD_ERR_CONFIGURE}
 
 # compile and install
-make -j ${NJOBS}
-make install
-install -m 0644 libmetis/libmetis.a "${PREFIX}/lib"
-install -m 0644 "${SRC_DIR}/$P/$P-$V/metis/include/metis.h" "${PREFIX}/include"
+make -j ${NJOBS} || exit ${BUILD_ERR_MAKE}
+make install || exit ${BUILD_ERR_INSTALL}
+install -m 0644 libmetis/libmetis.a "${PREFIX}/lib" || exit ${BUILD_ERR_INSTALL}
+install -m 0644 "${SRC_DIR}/$P/$P-$V/metis/include/metis.h" "${PREFIX}/include" || exit ${BUILD_ERR_INSTALL}
 

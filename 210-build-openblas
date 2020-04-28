@@ -14,16 +14,16 @@ DOWNLOAD_URL="http://github.com/xianyi/$P/archive/${FNAME}"
 SRC_FILE="${DOWNLOADS_DIR}/$P-$V.tar.gz"
 
 # download
-test -r "${SRC_FILE}"  || curl -L --output "$_" "${DOWNLOAD_URL}"
+test -r "${SRC_FILE}"  || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${BUILD_ERR_DOWNLOAD}
 
 # unpack
-mkdir -p "${SRC_DIR}/$P" && cd "$_"
-tar xvf "${SRC_FILE}"
-cd "$P-$V"
+mkdir -p "${SRC_DIR}/$P" && cd "$_" || exit ${BUILD_ERR_SYSTEM}
+tar xvf "${SRC_FILE}" || exit ${BUILD_ERR_UNTAR}
+cd "$P-$V" || exit ${BUILD_ERR_SYSTEM}
 
 # configure
 # nothing to configure
 
 # compile & install
-make TARGET=CORE2
-make TARGET=CORE2 PREFIX="${PREFIX}" install
+make TARGET=CORE2 || exit ${BUILD_ERR_MAKE}
+make TARGET=CORE2 PREFIX="${PREFIX}" install || exit ${BUILD_ERR_INSTALL}

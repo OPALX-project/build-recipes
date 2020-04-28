@@ -9,17 +9,17 @@ DOWNLOAD_URL="https://zlib.net/${FNAME}"
 SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
 
 # download
-test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}"
+test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${BUILD_ERR_DOWNLOAD}
 
 # unpack
-mkdir -p "${SRC_DIR}/$P" && cd "$_"
-tar xvf "${SRC_FILE}"
+mkdir -p "${SRC_DIR}/$P" && cd "$_" || exit ${BUILD_ERR_SYSTEM}
+tar xvf "${SRC_FILE}" || exit ${BUILD_ERR_UNTAR}
 
 # configure
-mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
+mkdir -p "${SRC_DIR}/$P/build" && cd "$_" || exit ${BUILD_ERR_SYSTEM}
 "${SRC_DIR}/$P/$P-$V/configure" \
-        --prefix="${PREFIX}" \
+        --prefix="${PREFIX}" || exit ${BUILD_ERR_CONFIGURE}
 
 # compile & install
-make -j ${NJOBS}
-make install
+make -j ${NJOBS} || exit ${BUILD_ERR_MAKE}
+make install || exit ${BUILD_ERR_INSTALL}
