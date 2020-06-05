@@ -1,32 +1,44 @@
 #!/bin/bash
+#
+# OPAL Toolchain Build recipe to build the GNU Multiple Precision.
+# Arithmetic Library.
+#
+# https://gmplib.org
+#
+P=gmp
+V=${GMP_VERSION:-6.2.0}
 
-if [[ -n "${TOOLSET}" ]] &&  [[ "${TOOLSET}" != "gcc" ]]; then
-        echo "TOOLSET is set to '${TOOLSET}' - skipping compilation of gmp" 1>&2
+trap "otb_exit" EXIT
+
+if [[ -n "${OTB_TOOLSET}" ]] &&  [[ "${OTB_TOOLSET}" != "gcc" ]]; then
+        echo "TOOLSET is set to '${OTB_TOOLSET}' - skipping compilation of gmp" 1>&2
         exit 0
 fi
 
-# recipe for:
-P=gmp
-V=${GMP_VERSION:-6.1.2}
-
 FNAME="$P-$V.tar.bz2"
 DOWNLOAD_URL="https://gmplib.org/download/$P/${FNAME}"
-SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
+SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
-test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}"
+test -r "${SRC_FILE}" || \
+    curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 
 # unpack
-mkdir -p "${SRC_DIR}/$P" && cd "$_"
-tar xvf "${SRC_FILE}"
+mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 
 # configure
-mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
-"${SRC_DIR}/$P/$P-$V/configure" \
-        --prefix="${PREFIX}" \
-        --disable-shared
+mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+"${OTB_SRC_DIR}/$P/$P-$V/configure" \
+        --prefix="${OTB_PREFIX}" \
+        --disable-shared || exit ${OTB_ERR_CONFIGURE}
 
 # compile and install
-make -j ${NJOBS}
-make install
+make -j ${NJOBS} || exit ${OTB_ERR_MAKE}
+make install || exit ${OTB_ERR_INSTALL}
+
+# Local Variables:
+# mode: shell-script-mode
+# sh-basic-offset: 8
+# End:
 

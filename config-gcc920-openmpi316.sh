@@ -1,7 +1,9 @@
-export TOOLSET=gcc
-export MPI_IMPLEMENTATION=openmpi
+export OTB_TOOLSET=gcc
+export OTB_MPI=openmpi
+export OTB_COMPILER_VERSION=9.2.0
+export OTB_MPI_VERSION=3.1.6
 
-declare -a recipes=(
+declare -a OTB_RECIPES=(
 	010-build-gmp
 	020-build-mpfr
 	030-build-mpc

@@ -1,11 +1,15 @@
-export OTB_TOOLSET=clang
+export OTB_TOOLSET=gcc
 export OTB_MPI=openmpi
-
-#export MACOSX_DEPLOYMENT_TARGET=10.14
+export OTB_COMPILER_VERSION=7.5.0
+export OTB_MPI_VERSION=3.1.6
 
 declare -a OTB_RECIPES=(
+	010-build-gmp
+	020-build-mpfr
+	030-build-mpc
+	040-build-gcc
 	050-build-cmake
-	061-build-mpich
+	060-build-openmpi
 	070-build-hdf5
 	080-build-gsl
 	090-build-h5hut
@@ -15,4 +19,3 @@ declare -a OTB_RECIPES=(
 	210-build-openblas
 	220-build-trilinos
 	300-build-gtest)
-

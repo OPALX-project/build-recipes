@@ -1,7 +1,7 @@
-export TOOLSET=gcc
-export MPI_IMPLEMENTATION=openmpi
+export OTB_TOOLSET=gcc
+export OTB_MPI=openmpi
 
-declare -a recipes=(
+declare -a OTB_RECIPES=(
 	050-build-cmake
 	060-build-openmpi
 	070-build-hdf5

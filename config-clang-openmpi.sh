@@ -1,9 +1,9 @@
-export TOOLSET=clang
-export MPI_IMPLEMENTATION=openmpi
+export OTB_TOOLSET=clang
+export OTB_MPI=openmpi
 
 #export MACOSX_DEPLOYMENT_TARGET=10.14
 
-declare -a recipes=(
+declare -a OTB_RECIPES=(
 	050-build-cmake
 	060-build-openmpi
 	070-build-hdf5

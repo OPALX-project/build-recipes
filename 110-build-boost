@@ -1,22 +1,25 @@
 #!/bin/bash
-
-# recipe for:
+#
+# OPAL Toolset Build recipe for Boost
+#
+# https://www.boost.org
+#
 P=boost
 V=${BOOST_VERSION:-1_70_0}
 
+trap "otb_exit" EXIT
+
 FNAME="${P}_$V.tar.gz"
 DOWNLOAD_URL="https://netcologne.dl.sourceforge.net/project/$P/$P/${V//_/.}/${FNAME}"
-SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
-
-test -n "${TOOLSET}" || TOOLSET='gcc'
+SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
-test -r "${SRC_FILE}"  || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${BUILD_ERR_DOWNLOAD}
+test -r "${SRC_FILE}"  || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 
 # unpack
-mkdir -p "${SRC_DIR}/$P" && cd "$_" || exit ${BUILD_ERR_SYSTEM}
-tar xvf "${SRC_FILE}" || exit ${BUILD_ERR_UNTAR}
-cd "${SRC_DIR}/$P/${P}_$V" || exit ${BUILD_ERR_CONFIGURE}
+mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
+cd "${OTB_SRC_DIR}/$P/${P}_$V" || exit ${OTB_ERR_CONFIGURE}
 patch -p1 <<EOF
 --- src.orig/libs/context/build/Jamfile.v2	2018-08-01 22:50:46.000000000 +0200
 +++ src/libs/context/build/Jamfile.v2	2018-11-30 10:06:57.000000000 +0100
@@ -38,26 +41,33 @@ patch -p1 <<EOF
       <toolset>darwin
     ;
 EOF
-[[ $? == 0 ]] || exit ${BUILD_ERR_CONFIGURE}
+[[ $? == 0 ]] || exit ${OTB_ERR_CONFIGURE}
 
 # configure
-mkdir -p "${SRC_DIR}/$P/build" || exit ${BUILD_ERR_SYSTEM}
-cd "${SRC_DIR}/$P/${P}_$V"  || exit ${BUILD_ERR_SYSTEM}
+mkdir -p "${OTB_SRC_DIR}/$P/build" || exit ${OTB_ERR_SYSTEM}
+cd "${OTB_SRC_DIR}/$P/${P}_$V"  || exit ${OTB_ERR_SYSTEM}
 ./bootstrap.sh \
-        --prefix="${PREFIX}" \
-        --with-toolset=${TOOLSET} \
+        --prefix="${OTB_PREFIX}" \
+        --with-toolset=${OTB_TOOLSET} \
         --without-libraries=python \
-        || exit 1 || exit ${BUILD_ERR_CONFIGURE}
-        echo "using mpi ;" >> "./project-config.jam" || exit ${BUILD_ERR_CONFIGURE}
+        || exit 1 || exit ${OTB_ERR_CONFIGURE}
+        echo "using mpi ;" >> "./project-config.jam" || exit ${OTB_ERR_CONFIGURE}
 
 # compile & install
 ./b2 \
         --build-dir="${BUILD_DIR}" \
         --layout=system \
         --without-python \
-        toolset=${TOOLSET} \
+        toolset=${OTB_TOOLSET} \
         variant=release \
         link=shared,static \
         threading=multi \
+	cxxflags=-fPIC cflags=-fPIC \
         install -j 3 \
-        || exit ${BUILD_ERR_INSTALL}
+        || exit ${OTB_ERR_INSTALL}
+
+# Local Variables:
+# mode: shell-script-mode
+# sh-basic-offset: 8
+# End:
+

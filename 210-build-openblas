@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# OPAL Toolchain Build recipe for OpenBLAS
+#
+# http://www.openblas.net
 
 # Please note:
 # - The (experimental?) CMake script still has some issues.
@@ -9,21 +13,29 @@
 P=OpenBLAS
 V=${OPENBLAS_VERSION:-0.3.9}
 
+trap "otb_exit" EXIT
+
 FNAME="v$V.tar.gz"
 DOWNLOAD_URL="http://github.com/xianyi/$P/archive/${FNAME}"
-SRC_FILE="${DOWNLOADS_DIR}/$P-$V.tar.gz"
+SRC_FILE="${OTB_DOWNLOAD_DIR}/$P-$V.tar.gz"
 
 # download
-test -r "${SRC_FILE}"  || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${BUILD_ERR_DOWNLOAD}
+test -r "${SRC_FILE}"  || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 
 # unpack
-mkdir -p "${SRC_DIR}/$P" && cd "$_" || exit ${BUILD_ERR_SYSTEM}
-tar xvf "${SRC_FILE}" || exit ${BUILD_ERR_UNTAR}
-cd "$P-$V" || exit ${BUILD_ERR_SYSTEM}
+mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
+cd "$P-$V" || exit ${OTB_ERR_SYSTEM}
 
 # configure
 # nothing to configure
 
 # compile & install
-make TARGET=CORE2 || exit ${BUILD_ERR_MAKE}
-make TARGET=CORE2 PREFIX="${PREFIX}" install || exit ${BUILD_ERR_INSTALL}
+make TARGET=CORE2 || exit ${OTB_ERR_MAKE}
+make TARGET=CORE2 PREFIX="${OTB_PREFIX}" install || exit ${OTB_ERR_INSTALL}
+
+# Local Variables:
+# mode: shell-script-mode
+# sh-basic-offset: 8
+# End:
+

@@ -1,26 +1,37 @@
 #!/bin/bash
-
-# recipe for:
+#
+# OPAL Toolchain Build recipe for the GNU Scientific Library.
+#
+# https://www.gnu.org/software/gsl/
+#
 P=gsl
 V=${GSL_VERSION:-2.6}
 
+trap "otb_exit" EXIT
+
 FNAME="$P-$V.tar.gz"
 DOWNLOAD_URL="ftp://ftp.gnu.org/gnu/$P/${FNAME}"
-SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
+SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
-test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${BUILD_ERR_DOWNLOAD}
+test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 
 # unpack
-mkdir -p "${SRC_DIR}/$P" && cd "$_" || exit ${BUILD_ERR_SETUP}
-tar xvf "${SRC_FILE}" || exit ${BUILD_ERR_UNTAR}
+mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 
 # configure
-mkdir -p "${SRC_DIR}/$P/build" && cd "$_" || exit ${BUILD_ERR_SETUP}
-"${SRC_DIR}/$P/$P-$V/configure" \
-                --prefix="${PREFIX}" \
-                --disable-shared || exit ${BUILD_ERR_CONFIGURE}
+mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+CFLAGS="-fPIC" "${OTB_SRC_DIR}/$P/$P-$V/configure" \
+                --prefix="${OTB_PREFIX}" \
+                --disable-shared || exit ${OTB_ERR_CONFIGURE}
 
 # compile & install
-make -j ${NJOBS} || exit ${BUILD_ERR_MAKE}
-make install || exit ${BUILD_ERR_INSTALL}
+make -j ${NJOBS} || exit ${OTB_ERR_MAKE}
+make install || exit ${OTB_ERR_INSTALL}
+
+# Local Variables:
+# mode: shell-script-mode
+# sh-basic-offset: 8
+# End:
+

@@ -1,36 +1,46 @@
 #!/bin/bash
 #
-# Recipe for
+# OPAL Toolchain Build recipe for CMake
+#
+# https://cmake.org
 #
 P=cmake
 V=${CMAKE_VERSION:-3.15.5}
 
+trap "otb_exit" EXIT
+
 FNAME="$P-$V.tar.gz"
 DOWNLOAD_URL="https://cmake.org/files/v${V%.*}/${FNAME}"
-SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
+SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 #
 # Download
 #
-test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${BUILD_ERR_DOWNLOAD}
+test -r "${SRC_FILE}" || \
+    curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 
 #
 # Unpack
 #
-mkdir -p "${SRC_DIR}/$P" && cd "$_" || exit ${BUILD_ERR_SETUP}
-tar xvf "${SRC_FILE}" || exit ${BUILD_ERR_UNTAR}
+mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 
 #
 # Configure
 # You might have to add the option --system-curl
 #
-mkdir -p "${SRC_DIR}/$P/build" && cd "$_" || exit ${BUILD_ERR_SETUP}
-"${SRC_DIR}/cmake/cmake-$V/bootstrap" \
-        --prefix="${PREFIX}" \
-        --verbose || exit ${BUILD_ERR_CONFIGURE}
+mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+"${OTB_SRC_DIR}/cmake/cmake-$V/bootstrap" \
+        --prefix="${OTB_PREFIX}" \
+        --verbose || exit ${OTB_ERR_CONFIGURE}
 #
 # Compile and install CMake
 #
-make -j ${NJOBS} || exit ${BUILD_ERR_MAKE}
-make install || exit ${BUILD_ERR_INSTALL}
+make -j ${NJOBS} || exit ${OTB_ERR_MAKE}
+make install || exit ${OTB_ERR_INSTALL}
+
+# Local Variables:
+# mode: shell-script-mode
+# sh-basic-offset: 8
+# End:
 

@@ -1,33 +1,45 @@
 #!/bin/bash
-
-if [[ -n "${TOOLSET}" ]] &&  [[ "${TOOLSET}" != "gcc" ]]; then
-        echo "TOOLSET is set to '${TOOLSET}' - skipping compilation of mpc" 1>&2
-        exit 0
-fi
-
-# recipe for:
+#
+# OPAL Toolchain Build recipe for GNU MPC Library.
+#
+# http://www.multiprecision.org/mpc
+#
 P=mpc
 V=${MPC_VERSION:-1.1.0}
 
+trap "otb_exit" EXIT
+
+if [[ -n "${OTB_TOOLSET}" ]] &&  [[ "${OTB_TOOLSET}" != "gcc" ]]; then
+        echo "TOOLSET is set to '${OTB_TOOLSET}' - skipping compilation of mpc" 1>&2
+        exit 0
+fi
+
 FNAME="$P-$V.tar.gz"
 DOWNLOAD_URL="ftp://ftp.gnu.org/gnu/$P/$P-$V.tar.gz"
-SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
+SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
-test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}"
+test -r "${SRC_FILE}" || \
+    curl -L --output "$_" "${DOWNLOAD_URL}"
 
 # unpack
-mkdir -p "${SRC_DIR}/$P" && cd "$_"
+mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_"
 tar xvf "${SRC_FILE}"
 
 # configure
-mkdir -p "${SRC_DIR}/$P/build" && cd "$_"
-"${SRC_DIR}/$P/$P-$V/configure" \
-        --prefix="${PREFIX}" \
-        --with-gmp="${PREFIX}" \
-        --with-mpfr="${PREFIX}" \
+mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_"
+"${OTB_SRC_DIR}/$P/$P-$V/configure" \
+        --prefix="${OTB_PREFIX}" \
+        --with-gmp="${OTB_PREFIX}" \
+        --with-mpfr="${OTB_PREFIX}" \
         --disable-shared
 
 # compile & install
 make -j ${NJOBS}
 make install
+
+# Local Variables:
+# mode: shell-script-mode
+# sh-basic-offset: 8
+# End:
+

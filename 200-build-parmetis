@@ -1,31 +1,42 @@
 #!/bin/bash
-
-# recipe for:
+#
+# OPAL Toolchain Build recipe for ParMETIS
+#
+# http://glaros.dtc.umn.edu/gkhome/metis/parmetis/overview
+#
 P=parmetis
 V=${PARMETIS_VERSION:-4.0.3}
 
+trap "otb_exit" EXIT
+
 FNAME="$P-$V.tar.gz"
 DOWNLOAD_URL="http://glaros.dtc.umn.edu/gkhome/fetch/sw/$P/${FNAME}"
-SRC_FILE="${DOWNLOADS_DIR}/${FNAME}"
+SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
-test -r "${SRC_FILE}"  || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${BUILD_ERR_DOWNLOAD}
+test -r "${SRC_FILE}"  || \
+    curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 
 # unpack
-mkdir -p "${SRC_DIR}/$P" && cd "$_" || exit ${BUILD_ERR_SYSTEM}
-tar xvf "${SRC_FILE}" || exit ${BUILD_ERR_UNTAR}
+mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 
 # configure
-mkdir -p "${SRC_DIR}/$P/build" && cd "$_" || exit ${BUILD_ERR_SYSTEM}
+mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 CC=mpicc CXX=mpicxx cmake \
-         -D CMAKE_INSTALL_PREFIX:PATH="${PREFIX}" \
-         -D METIS_PATH="${SRC_DIR}/$P/$P-$V/metis" \
-         -D GKLIB_PATH="${SRC_DIR}/$P/$P-$V/metis/GKlib" \
-         "${SRC_DIR}/$P/$P-$V" || exit ${BUILD_ERR_CONFIGURE}
+         -D CMAKE_INSTALL_PREFIX:PATH="${OTB_PREFIX}" \
+         -D METIS_PATH="${OTB_SRC_DIR}/$P/$P-$V/metis" \
+         -D GKLIB_PATH="${OTB_SRC_DIR}/$P/$P-$V/metis/GKlib" \
+         "${OTB_SRC_DIR}/$P/$P-$V" || exit ${OTB_ERR_CONFIGURE}
 
 # compile and install
-make -j ${NJOBS} || exit ${BUILD_ERR_MAKE}
-make install || exit ${BUILD_ERR_INSTALL}
-install -m 0644 libmetis/libmetis.a "${PREFIX}/lib" || exit ${BUILD_ERR_INSTALL}
-install -m 0644 "${SRC_DIR}/$P/$P-$V/metis/include/metis.h" "${PREFIX}/include" || exit ${BUILD_ERR_INSTALL}
+make -j ${NJOBS} || exit ${OTB_ERR_MAKE}
+make install || exit ${OTB_ERR_INSTALL}
+install -m 0644 libmetis/libmetis.a "${OTB_PREFIX}/lib" || exit ${OTB_ERR_INSTALL}
+install -m 0644 "${OTB_SRC_DIR}/$P/$P-$V/metis/include/metis.h" "${OTB_PREFIX}/include" || exit ${OTB_ERR_INSTALL}
+
+# Local Variables:
+# mode: shell-script-mode
+# sh-basic-offset: 8
+# End:
 
