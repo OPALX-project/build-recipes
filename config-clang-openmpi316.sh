@@ -1,5 +1,6 @@
 export OTB_TOOLSET=clang
 export OTB_MPI=openmpi
+export OTB_MPI_VERSION=3.1.6
 
 #export MACOSX_DEPLOYMENT_TARGET=10.14
 
