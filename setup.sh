@@ -182,7 +182,8 @@ if [[  ${__my_dir} != */etc/profile.d ]]; then
                 echo "OTB_TOOLSET=${OTB_TOOLSET}"
                 [[ -n ${OTB_COMPILER_VERSION} ]] && \
                         echo "OTB_COMPILER_VERSION=${OTB_COMPILER_VERSION}"
-                echo "OTB_MPI=${OTB_MPI}"
+		[[ -n ${OTB_MPI} ]] && \
+             	   	echo "OTB_MPI=${OTB_MPI}"
                 [[ -n ${OTB_MPI_VERSION} ]] && \
                         echo "OTB_MPI_VERSION=${OTB_MPI_VERSION}"
         }  > "${OTB_PROFILE_DIR}/config.sh"
@@ -193,7 +194,8 @@ echo "    Prefix:       ${OTB_PREFIX}"
 echo "    Compiler:     ${OTB_TOOLSET}"
 [[ -n ${OTB_COMPILER_VERSION} ]] && \
         echo "    Version:      ${OTB_COMPILER_VERSION}"
-echo "    MPI:          ${OTB_MPI}"
+[[ -n ${OTB_MPI} ]] && \
+	echo "    MPI:          ${OTB_MPI}"
 [[ -n ${OTB_MPI_VERSION} ]] && \
         echo "    Version:      ${OTB_MPI_VERSION}"
 
