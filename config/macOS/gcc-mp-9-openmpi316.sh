@@ -13,3 +13,10 @@ declare -a OTB_RECIPES=(
 	210-build-openblas
 	220-build-trilinos
 	300-build-gtest)
+
+declare -A OTB_SYMLINKS
+OTB_SYMLINKS['cc']='/opt/local/bin/gcc-mp-9'
+OTB_SYMLINKS['c++']='/opt/local/bin/g++-mp-9'
+OTB_SYMLINKS['gcc']='/opt/local/bin/gcc-mp-9'
+OTB_SYMLINKS['g++']='/opt/local/bin/g++-mp-9'
+OTB_SYMLINKS['gfortran']='/opt/local/bin/gfortran-mp-9'
