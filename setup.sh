@@ -164,8 +164,12 @@ __ncores=$(getconf _NPROCESSORS_ONLN)
 [[ ${__ncores} > 10 ]] && __ncores=10
 export NJOBS=${NJOBS:-${__ncores}}
 
-mkdir -p "${OTB_PREFIX}/lib" "${OTB_DOWNLOAD_DIR}" "${OTB_SRC_DIR}" \
+mkdir -p "${OTB_PREFIX}/bin" "${OTB_PREFIX}/lib" "${OTB_DOWNLOAD_DIR}" "${OTB_SRC_DIR}" \
         || return ${OTB_ERR_SETUP}
+
+for link_name in "${!OTB_SYMLINKS[@]}"; do
+	ln -fs "${OTB_SYMLINKS[${link_name}]}" "$OTB_PREFIX/bin/${link_name}"
+done
 
 if [[ "$(uname -s)" == "Linux" ]]; then
 	( cd "${OTB_PREFIX}" && ln -fs lib lib64 || return ${OTB_ERR_SETUP};)
