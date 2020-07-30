@@ -1,7 +1,6 @@
 export OTB_TOOLSET=clang
-export OTB_MPI=openmpi
-
-#export MACOSX_DEPLOYMENT_TARGET=10.14
+export OTB_COMPILER_VERSION=$(clang --version | head -1)
+export OTB_MPI=mpich
 
 declare -a OTB_RECIPES=(
 	050-build-cmake
