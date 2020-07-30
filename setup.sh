@@ -168,7 +168,7 @@ mkdir -p "${OTB_PREFIX}/bin" "${OTB_PREFIX}/lib" "${OTB_DOWNLOAD_DIR}" "${OTB_SR
         || return ${OTB_ERR_SETUP}
 
 for link_name in "${!OTB_SYMLINKS[@]}"; do
-	ln -fs "${OTB_SYMLINKS[${link_name}]}" "$OTB_PREFIX/bin/${link_name}"
+	ln -fs "${OTB_SYMLINKS[${link_name}]}" "${OTB_PREFIX}/${link_name}"
 done
 
 if [[ "$(uname -s)" == "Linux" ]]; then
