@@ -10,10 +10,10 @@ declare -a OTB_RECIPES=(
 	040-build-gcc
 	050-build-cmake
 	060-build-openmpi
-	070-build-hdf5
-	080-build-gsl
-	090-build-h5hut
-	100-build-zlib
+	070-build-zlib
+	080-build-hdf5
+	090-build-gsl
+	100-build-h5hut
 	110-build-boost
 	200-build-parmetis
 	210-build-openblas
