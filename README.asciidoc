@@ -4,7 +4,8 @@
 
 == Introduction
 
-The OPAL Tool-chain Builder is a collection of recipes to build almost software 
-required to compile OPAL. 
+The OPAL Tool-chain Builder (OTB) is a collection of recipes to build all
+required software to compile _OPAL_.
 
-https://gitlab.psi.ch/OPAL/src/-/wikis/For-Developers/Compile-OPAL#user-content-build-the-opal-tool-chain-from-scratch
+The documentation how to setup and run the recipes is in the 
+https://gitlab.psi.ch/OPAL/src/-/wikis/For-Developers/Compile-OPAL#user-content-build-the-opal-tool-chain-from-scratch[OPAL Wiki].
