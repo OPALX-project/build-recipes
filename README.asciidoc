@@ -1,0 +1,10 @@
+= The OPAL Tool-chain Builder
+:toc:
+:numbered:
+
+== Introduction
+
+The OPAL Tool-chain Builder is a collection of recipes to build almost software 
+required to compile OPAL. 
+
+https://gitlab.psi.ch/OPAL/src/-/wikis/For-Developers/Compile-OPAL#user-content-build-the-opal-tool-chain-from-scratch
