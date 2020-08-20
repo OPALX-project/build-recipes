@@ -16,7 +16,7 @@
 #
 # Example:
 #
-#    cmake -DPRESET=/alpha/bravo -P make_config_modules_relocatable.cmake
+#    cmake -DPREFIX=/alpha/bravo -P make_relocatable.cmake
 #
 # If a config module /alpha/bravo/lib/cmake/delta/delta-config.cmake references
 # the file /alpha/bravo/lib/delta.lib then a new variable will be
@@ -45,7 +45,8 @@ message(STATUS "Found ${nfiles} files.")
 foreach(file IN LISTS files)
   get_filename_component(file_dir "${file}" DIRECTORY)
   file(READ "${file}" content)
-  if(content MATCHES "${PREFIX}/")
+  if(content MATCHES "${PREFIX}")
+    message(STATUS "Changing ${file}.")
     string(RANDOM random)
     set(var_name "INSTALL_PREFIX_${random}")
     file(RELATIVE_PATH file_dir_to_PREFIX "${file_dir}" "${PREFIX}")
@@ -53,9 +54,9 @@ foreach(file IN LISTS files)
     message(STATUS "${file}:")
     message(STATUS "\tAdd first line: ${first_line}")
     set(content "${first_line}\n${content}")
-    set(replace_string "\${${var_name}}/")
-    message(STATUS "\tReplace ${PREFIX}/ -> ${replace_string}")
-    string(REGEX REPLACE "${PREFIX}/" "${replace_string}" content "${content}")
+    set(replace_string "\${${var_name}}")
+    message(STATUS "\tReplace ${PREFIX} -> ${replace_string}")
+    string(REGEX REPLACE "${PREFIX}" "${replace_string}" content "${content}")
     file(WRITE "${file}" "${content}")
   endif()
 endforeach()
