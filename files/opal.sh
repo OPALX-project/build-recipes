@@ -13,19 +13,15 @@ pathmunge () {
 }
 
 export OPAL_PREFIX=$(cd "$(dirname ${BASH_SOURCE})/../../"; pwd )
-export ROOTSYS="${OPAL_PREFIX}"
 export LD_LIBRARY_PATH
 export LIBRARY_PATH
 export DYLD_LIBRARY_PATH
 export C_INCLUDE_PATH
 export CPLUS_INCLUDE_PATH
-export OMPI_MPICC="${OPAL_PREFIX}/bin/gcc"
-export OMPI_MPICXX="${OPAL_PREFIX}/bin/g++"
 export HDF5_ROOT="${OPAL_PREFIX}"
 export BOOST_ROOT="${OPAL_PREFIX}"
 export BOOST_DIR="${OPAL_PREFIX}"
-export TERMINFO="${OPAL_PREFIX}/share/terminfo"
-#export GIT_EXEC_PATH="${OPAL_PREFIX}/libexec/git-core"
+#export TERMINFO="${OPAL_PREFIX}/share/terminfo"
 
 pathmunge PATH		  "${OPAL_PREFIX}/bin"
 pathmunge C_INCLUDE_PATH  "${OPAL_PREFIX}/include"
