@@ -1,0 +1,45 @@
+#!/bin/bash
+
+if [[ -z "${OTB_PREFIX}" ]]; then
+	echo -e "OTB_PREFIX not set!\nAborting..." 1>&2
+	exit 1
+fi
+
+if [[ -z $(which patchelf) ]]; then
+	echo -e "patchelf missing!\nAborting..." 1>&2
+	exit 1
+fi
+
+mydir=$(cd $(dirname "$0") && pwd)
+
+#
+# cp some shared libs which might not be installed on the target system
+#
+libs=( $(ldd "${OTB_PREFIX}/bin/ccmake" | awk  '/ => \// && !/'${OTB_PREFIX//\//\\/}'|lib(c|dl|keyutils|m|resolv|pthread|rt|selinux).so/ {print $3}') )
+
+if (( ${#libs[@]} > 0 )); then
+	cp "${libs[@]}" "${OTB_PREFIX}/lib"
+fi
+
+#
+# set RPATH to $ORIGIN in all shared libraries to make them
+# relocatable.
+#
+for f in "${OTB_PREFIX}"/lib/*.so; do
+	# is this an ELF 64-bit binary?
+	file -L "$f" | grep -q "ELF 64-bit" || continue
+	rpath=$(patchelf --print-rpath "$f")
+	[[ -z "${rpath}" ]] && continue
+	patchelf --force-rpath --set-rpath '$ORIGIN' "$f"
+done
+
+#
+# set RPATH to $ORIGIN in all ELF binaries found in "${OTB_PREFIX}/bin"
+# to make them relocatable.
+#
+
+for f in "${OTB_PREFIX}"/bin/*; do
+	# is this an ELF 64-bit binary?
+	file -L "$f" | grep -q "ELF 64-bit" || continue
+	patchelf --force-rpath --set-rpath '$ORIGIN/../lib' "$f"
+done
