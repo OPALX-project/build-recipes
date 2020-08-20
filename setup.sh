@@ -155,6 +155,7 @@ export C_INCLUDE_PATH="${OTB_PREFIX}/include"
 export CPLUS_INCLUDE_PATH="${OTB_PREFIX}/include"
 export LIBRARY_PATH="${OTB_PREFIX}/lib"
 export LD_LIBRARY_PATH="${OTB_PREFIX}/lib"
+export PKG_CONFIG_PATH="${OTB_PREFIX}/lib/pkgconfig"
 
 export BOOST_DIR="${OTB_PREFIX}"
 export BOOST_ROOT="${OTB_PREFIX}"
@@ -175,6 +176,13 @@ if [[ "$(uname -s)" == "Linux" ]]; then
 	( cd "${OTB_PREFIX}" && ln -fs lib lib64 || return ${OTB_ERR_SETUP};)
 	LIBRARY_PATH+=":${OTB_PREFIX}/lib64"
 	LD_LIBRARY_PATH+=":${OTB_PREFIX}/lib64"
+	if [[ -d /usr/lib/x86_64-linux-gnu ]]; then
+		__otb_path_munge LIBRARY_PATH "/usr/lib/x86_64-linux-gnu"
+	fi
+fi
+
+if [[ "$(uname -s)" == "Darwin" ]]; then
+	export DYLD_LIBRARY_PATH=${LD_LIBRARY_PATH}
 fi
 
 if [[  ${__my_dir} != */etc/profile.d ]]; then
@@ -191,6 +199,8 @@ if [[  ${__my_dir} != */etc/profile.d ]]; then
                 [[ -n ${OTB_MPI_VERSION} ]] && \
                         echo "OTB_MPI_VERSION=${OTB_MPI_VERSION}"
         }  > "${OTB_PROFILE_DIR}/config.sh"
+else
+	export OPAL_PREFIX=$(cd "$(dirname ${BASH_SOURCE})/../../"; pwd )
 fi
 
 echo "Using:"
