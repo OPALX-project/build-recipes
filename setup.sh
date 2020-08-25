@@ -6,8 +6,8 @@ if [[ $_ == $0 ]]; then
 fi
 
 
-declare __my_dir=$(dirname "${BASH_SOURCE[0]}")
-__my_dir=$(cd "${__my_dir}"; pwd)
+declare -r __my_dir="$(dirname "${BASH_SOURCE[0]}" && pwd)"
+declare -r __os=$(uname -s)
 
 declare -ix OTB_ERR_ARG=1
 declare -ix OTB_ERR_SETUP=2
@@ -129,7 +129,7 @@ fi
 # OTB_TOOLSET is used in the boost build recipe
 #
 if [[ -z "${OTB_TOOLSET}" ]]; then
-	if [[ $(uname -s) == 'Darwin' ]]; then
+	if [[ "${__os}" == 'Darwin' ]]; then
 		export OTB_TOOLSET='clang'
 	else
 		export OTB_TOOLSET='gcc'
@@ -172,7 +172,7 @@ for link_name in "${!OTB_SYMLINKS[@]}"; do
 	ln -fs "${OTB_SYMLINKS[${link_name}]}" "${OTB_PREFIX}/${link_name}"
 done
 
-if [[ "$(uname -s)" == "Linux" ]]; then
+if [[ "${__os}" == "Linux" ]]; then
 	( cd "${OTB_PREFIX}" && ln -fs lib lib64 || return ${OTB_ERR_SETUP};)
 	LIBRARY_PATH+=":${OTB_PREFIX}/lib64"
 	LD_LIBRARY_PATH+=":${OTB_PREFIX}/lib64"
@@ -181,14 +181,10 @@ if [[ "$(uname -s)" == "Linux" ]]; then
 	fi
 fi
 
-if [[ "$(uname -s)" == "Darwin" ]]; then
-	export DYLD_LIBRARY_PATH=${LD_LIBRARY_PATH}
-fi
-
 if [[  ${__my_dir} != */etc/profile.d ]]; then
+	# we are *building* the binary package
         mkdir -p "${OTB_PROFILE_DIR}"
-        cp "${__my_dir}/files/opal.sh" "${OTB_PROFILE_DIR}"
-        cp "${__my_dir}/setup.sh"      "${OTB_PROFILE_DIR}/otb_setup.sh"
+        cp "${__my_dir}/setup.sh"      "${OTB_PROFILE_DIR}/opal.sh"
 
         {
                 echo "OTB_TOOLSET=${OTB_TOOLSET}"
@@ -200,7 +196,19 @@ if [[  ${__my_dir} != */etc/profile.d ]]; then
                         echo "OTB_MPI_VERSION=${OTB_MPI_VERSION}"
         }  > "${OTB_PROFILE_DIR}/config.sh"
 else
+	# we are *using* the binary package
 	export OPAL_PREFIX=$(cd "$(dirname ${BASH_SOURCE})/../../"; pwd )
+
+	# :FIXME: 
+	# On macOS we need neither LD_LIBRARY_PATH nor DYLD_LIBRARY_PATH due
+	# to the patched RPATH in all executables and libraries. 
+	#
+	# The same might be true on Linux too, but this must be tested first.
+	#
+	# Not sure whether these environment variables are nedded while building
+	# the tool-chain.
+	#
+	[[ "${__os}" == 'Darwin' ]] && unset LD_LIBRARY_PATH
 fi
 
 echo "Using:"
@@ -214,6 +222,7 @@ echo "    Compiler:     ${OTB_TOOLSET}"
         echo "    Version:      ${OTB_MPI_VERSION}"
 
 unset __my_dir
+unset __os
 unset __ncores
 unset __usage
 unset __otb_path_munge
