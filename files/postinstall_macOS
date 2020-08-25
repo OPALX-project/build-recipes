@@ -1,0 +1,138 @@
+#!/opt/local/bin/bash
+
+if [[ -n "$1" ]]; then
+        if [[ -d "$1" ]]; then
+                OTB_PREFIX="$1"
+        else
+                echo -e "Passed prefix does not exist or is not a directory -- $1" 1>&2
+		exit 1
+	fi
+fi
+if [[ -z "${OTB_PREFIX}" ]]; then
+	echo -e "OTB_PREFIX not set!\nAborting..." 1>&2
+	exit 1
+fi
+
+#
+# macOS specific post-install
+#
+postinstall_macOS() {
+	install_gcc() {
+		# gcc cc g++ c++ gfortran as ar nm ranlib
+		rm -f "${OTB_PREFIX}/bin/gcc"
+		rm -f "${OTB_PREFIX}/bin/cc"
+		rm -f "${OTB_PREFIX}/bin/g++"
+		rm -f "${OTB_PREFIX}/bin/c++"
+		rm -f "${OTB_PREFIX}/bin/gfortran"
+		rm -f "${OTB_PREFIX}/bin/as"
+		rm -f "${OTB_PREFIX}/bin/ar"
+		rm -f "${OTB_PREFIX}/bin/nm"
+		rm -f "${OTB_PREFIX}/bin/ranlib"
+
+		cp "/opt/local/bin/gcc-mp-8" "${OTB_PREFIX}/bin/gcc"
+		ln "${OTB_PREFIX}/bin/gcc" "${OTB_PREFIX}/bin/cc"
+
+		cp "/opt/local/bin/g++-mp-8" "${OTB_PREFIX}/bin/g++"
+		ln "${OTB_PREFIX}/bin/g++" "${OTB_PREFIX}/bin/c++"
+
+		cp "/opt/local/bin/gfortran-mp-8" "${OTB_PREFIX}/bin/gfortran"
+
+		cp "/opt/local/bin/as" "${OTB_PREFIX}/bin/"
+		cp "/opt/local/bin/ar" "${OTB_PREFIX}/bin/"
+		cp "/opt/local/bin/ranlib" "${OTB_PREFIX}/bin/"
+		cp "/opt/local/libexec/llvm-8.0/bin/llvm-nm" "${OTB_PREFIX}/bin/nm"
+		chmod 0755  "${OTB_PREFIX}"/bin/*
+
+		cp /opt/local/lib/libgcc/*.dylib	"${OTB_PREFIX}/lib/"
+		cp /opt/local/lib/libffi.6.dylib	"${OTB_PREFIX}/lib/"
+		cp /opt/local/lib/libedit.0.dylib	"${OTB_PREFIX}/lib/"
+		cp /opt/local/lib/libncurses.6.dylib	"${OTB_PREFIX}/lib/"
+		# create required sym-links
+		{ 
+			cd ${OTB_PREFIX}/lib
+			ln -sf libstdc++.6.dylib   libstdc++.dylib
+			ln -sf libgfortran.5.dylib libgfortran.dylib
+			ln -sf libquadmath.0.dylib libquadmath.dylib
+			ln -sf libffi.6.dylib	   libffi.dylib
+			ln -sf libedit.0.dylib     libedit.dylib
+			ln -sf libncurses.6.dylib  libncurses.dylib
+		}
+
+		mkdir -p "${OTB_PREFIX}/include/gcc8/"
+		rsync --verbose --archive "/opt/local/include/gcc8/" "${OTB_PREFIX}/include/gcc8/"
+
+		mkdir -p "${OTB_PREFIX}/lib/gcc8/gcc/"
+		rsync --verbose --archive "/opt/local/lib/gcc8/gcc/" "${OTB_PREFIX}/lib/gcc8/gcc/"
+
+		mkdir -p "${OTB_PREFIX}/libexec/gcc/x86_64-apple-darwin19/8.4.0/"
+		rsync --verbose --archive "/opt/local/libexec/gcc/x86_64-apple-darwin19/8.4.0/" "${OTB_PREFIX}/libexec/gcc/x86_64-apple-darwin19/8.4.0/"
+	}
+
+	install_libs_from_Macports() {
+		local -A to_be_installed
+		executables_1=( $(file -h "${OTB_PREFIX}"/bin/* | \
+			awk '/Mach-O 64-bit executable/ {print substr($1, 0, length($1)-1)}') )
+		executables_4=( $(file -h "${OTB_PREFIX}"/libexec/gcc/*/*/* | \
+			awk '/Mach-O 64-bit executable/ {print substr($1, 0, length($1)-1)}') )
+		libraries=( $(find "${OTB_PREFIX}" -type f -name "*.dylib" -o -name "*.so") )
+
+		for f in "${executables_1[@]}" "${executables_4[@]}" "${libraries[@]}"; do
+			while read l; do
+				to_be_installed["$l"]=1
+			done < <(otool -L "$f" | awk '/opt\/local/ {print $1}')
+		done
+
+		for f in "${!to_be_installed[@]}"; do
+			if [[ ! -e ${OTB_PREFIX}/lib/${f##*/} ]]; then
+				cp "$f" "${OTB_PREFIX}/lib/"
+			fi
+		done
+	}
+
+	make_binaries_relocatable() {
+		executables_1=( $(file -h "${OTB_PREFIX}"/bin/* | \
+			awk '/Mach-O 64-bit executable/ {print substr($1, 0, length($1)-1)}') )
+		executables_4=( $(file -h "${OTB_PREFIX}"/libexec/gcc/*/*/* | \
+			awk '/Mach-O 64-bit executable/ {print substr($1, 0, length($1)-1)}') )
+		libraries=( $(find "${OTB_PREFIX}" -type f -name "*.dylib" -o -name "*.so") )
+
+		for f in "${executables_1[@]}"; do
+			# CMake has been compiled with Clang!
+			[[ "$f" =~ cmake ]] && continue
+			echo "post-process: $f"
+			# set rpath if not already set
+			otool -l "$f" | grep -q LC_RPATH || \
+				install_name_tool -add_rpath @executable_path/../lib "$f"
+			libs=( $(otool -L "$f" | awk "  /opt\/local\/lib|${OTB_PREFIX//\//\\/}\/lib/ {print \$1}") )
+			for l in ${libs[*]}; do
+				 install_name_tool -change "$l"  "@rpath/${l##*/}" "$f"
+			done
+		done
+
+		for f in "${executables_4[@]}"; do
+			echo "post-process: $f"
+			# set rpath if not already set
+			otool -l "$f" | grep -q LC_RPATH || \
+				install_name_tool -add_rpath @executable_path/../../../../lib "$f"
+			libs=( $(otool -L "$f" | awk "  /opt\/local\/lib|${OTB_PREFIX//\//\\/}\/lib/ {print \$1}") )
+			for l in ${libs[*]}; do
+				 install_name_tool -change "$l"  "@rpath/${l##*/}" "$f"
+			done
+		done
+
+		for f in "${libraries[@]}"; do
+			echo "post-process: $f"
+			otool -l "$f" | grep -q LC_RPATH || \
+				install_name_tool -id "@rpath/${f##*/}" "$f"
+			libs=( $(otool -L "$f" | awk "  /opt\/local\/lib|${OTB_PREFIX//\//\\/}\/lib/ {print \$1}") )
+			for l in ${libs[*]}; do
+				 install_name_tool -change "$l"  "@rpath/${l##*/}" "$f"
+			done
+		done
+	}
+	install_gcc
+	install_libs_from_Macports
+	make_binaries_relocatable
+}
+
+postinstall_macOS
