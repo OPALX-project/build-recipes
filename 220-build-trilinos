@@ -5,7 +5,12 @@
 # https://trilinos.github.io
 #
 P=trilinos
-V=${TRILINOS_VERSION:-12.18.1}
+__OS=$(uname -s)
+if [[ "${__OS}" == 'Darwin' ]]; then
+	V=${TRILINOS_VERSION:-13.0.0}
+else
+	V=${TRILINOS_VERSION:-12.18.1}
+fi
 
 trap "otb_exit" EXIT
 
