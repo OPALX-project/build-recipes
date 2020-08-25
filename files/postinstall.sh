@@ -13,36 +13,7 @@ if [[ -z "${OTB_PREFIX}" ]]; then
 	exit 1
 fi
 
-mydir=$(cd $(dirname "$0") && pwd)
-
-postinstall_linux() {
-	if [[ -z $(which patchelf) ]]; then
-		echo -e "patchelf missing!\nAborting..." 1>&2
-		exit 1
-	fi
-	#
-	# set RPATH to $ORIGIN in all shared libraries to make them
-	# relocatable.
-	#
-	for f in "${OTB_PREFIX}"/lib/*.so; do
-		# is this an ELF 64-bit binary?
-		file -L "$f" | grep -q "ELF 64-bit" || continue
-		rpath=$(patchelf --print-rpath "$f")
-		[[ -z "${rpath}" ]] && continue
-		patchelf --force-rpath --set-rpath '$ORIGIN' "$f"
-	done
-
-	#
-	# set RPATH to $ORIGIN in all ELF binaries found in "${OTB_PREFIX}/bin"
-	# to make them relocatable.
-	#
-
-	for f in "${OTB_PREFIX}"/bin/*; do
-		# is this an ELF 64-bit binary?
-		file -L "$f" | grep -q "ELF 64-bit" || continue
-		patchelf --force-rpath --set-rpath '$ORIGIN/../lib' "$f"
-	done
-}
+mydir="$(cd $(dirname -- "$0") && pwd)"
 
 #
 # remove all libtool .la files
@@ -108,17 +79,6 @@ patch_Trilinos() {
 }
 
 #
-# cp non-standard libraries required by CMake to tool-chain
-#
-copy_libs() {
-	libs=( $(ldd "${OTB_PREFIX}/bin/ccmake" | awk  '/ => \// && !/'${OTB_PREFIX//\//\\/}'|lib(c|dl|keyutils|m|resolv|pthread|rt|selinux).so/ {print $3}') )
-
-	if (( ${#libs[@]} > 0 )); then
-		cp "${libs[@]}" "${OTB_PREFIX}/lib"
-	fi
-}
-
-#
 # strip binaries
 #
 strip_unneeded() {
@@ -140,9 +100,4 @@ make_cmake_module_relocatable() {
 patch_Trilinos
 strip_unneeded
 make_cmake_module_relocatable
-copy_libs
-
-os_name=$(uname -s)
-[[ "${os_name}" == 'Linux' ]] && postinstall_linux
-
 
