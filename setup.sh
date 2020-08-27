@@ -5,9 +5,18 @@ if [[ $_ == $0 ]]; then
 	exit 1
 fi
 
+if [[ -n "${BASH_VERSION}" ]]; then
+	declare __my_name="$(basename -- "${BASH_SOURCE[0]}")"
+	declare __my_dir="$(cd "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+elif [[ -n "${ZSH_VERSION}" ]]; then
+	declare __my_name="$(basename -- "${(%):-%N}")"
+	declare __my_dir="$(cd "$(dirname -- "${(%):-%N}")" && pwd)"
+else
+	echo "Unsupported shell!" 1>&2
+	return
+fi
 
-declare -r __my_dir="$(dirname "${BASH_SOURCE[0]}" && pwd)"
-declare -r __os=$(uname -s)
+declare __os=$(uname -s)
 
 declare -ix OTB_ERR_ARG=1
 declare -ix OTB_ERR_SETUP=2
@@ -24,7 +33,7 @@ declare -ix OTB_ERR=255
 __usage(){
 	echo "
 Usage:
-    source ${BASH_SOURCE[0]} [--prefix DIR] [CONFIG_FILE]
+    source ${_my_name} [--prefix DIR] [CONFIG_FILE]
 " 1>&2
 	return ${OTB_ERR_ARG}
 }
@@ -36,8 +45,12 @@ Usage:
 #
 otb_exit() {
         local -i ec=$?
-        local -i n=${#BASH_SOURCE[@]}
-        local -r recipe_name="${BASH_SOURCE[n]}"
+	if [[ -n "${BASH_VERSION}" ]]; then
+        	local -i n=${#BASH_SOURCE[@]}
+        	local -r recipe_name="${BASH_SOURCE[n]}"
+	else
+		local -r recipe_name="${ZSH_ARGZERO}"
+	fi
         echo -n "${recipe_name}: "
         if (( ec == 0 )); then
                 echo "done!"
@@ -67,28 +80,7 @@ otb_exit() {
         exit ${ec}
 }
 
-export -f otb_exit
-
-__otb_path_munge () {
-	path=$1
-    	case ":${!path}:" in
-        *:"$2":*)
-            ;;
-        *)
-            if [ -z "${!path}" ] ; then
-                eval ${path}=\"$2\"
-            else
-                eval ${path}=\"$2:${!path}\"
-            fi
-    esac
-}
-
-__otb_path_remove () {
-        path=$1
-        eval ${path}=\"${!path//:$2:/:}\"
-        eval ${path}=\"${!path#$2:}\"
-        eval ${path}=\"${!path%:$2}\"
-}
+export -f otb_exit > /dev/null
 
 declare config_file="${__my_dir}/config.sh"
 if [[ ${__my_dir} == */etc/profile.d ]]; then
@@ -138,24 +130,31 @@ if [[ -z "${OTB_TOOLSET}" ]]; then
 fi
 
 #
-# a list of recipes can be defined in a configuration file
+# a list of recipes might be defined if we are building the
+# tool-chain.
 #
-for ((i=0; i<${#OTB_RECIPES[@]}; i++)); do
-        OTB_RECIPES[i]="${__my_dir}/${OTB_RECIPES[i]}"
-done
+if [[ -n "${BASH_VERSION}" ]]; then
+	for ((i=0; i<${#OTB_RECIPES[@]}; i++)); do
+	        OTB_RECIPES[i]="${__my_dir}/${OTB_RECIPES[i]}"
+	done
+elif [[ -n "${ZSH_VERSION}" ]]; then
+	for ((i=1; i<=${#OTB_RECIPES[@]}; i++)); do
+	        OTB_RECIPES[i]="${__my_dir}/${OTB_RECIPES[i]}"
+	done
+fi
 
 export OTB_PREFIX="${OTB_PREFIX:-${HOME}/OPAL}"
 export OTB_DOWNLOAD_DIR="${OTB_PREFIX}/tmp/Downloads"
 export OTB_SRC_DIR="${OTB_PREFIX}/tmp/src"
 export OTB_PROFILE_DIR="${OTB_PREFIX}/etc/profile.d"
 
-__otb_path_munge PATH "${OTB_PREFIX}/bin"
+PATH="${OTB_PREFIX}/bin:${PATH}"
 
-export C_INCLUDE_PATH="${OTB_PREFIX}/include"
-export CPLUS_INCLUDE_PATH="${OTB_PREFIX}/include"
-export LIBRARY_PATH="${OTB_PREFIX}/lib"
-export LD_LIBRARY_PATH="${OTB_PREFIX}/lib"
-export PKG_CONFIG_PATH="${OTB_PREFIX}/lib/pkgconfig"
+export C_INCLUDE_PATH="${OTB_PREFIX}/include:${C_INCLUDE_PATH}"
+export CPLUS_INCLUDE_PATH="${OTB_PREFIX}/include:${CPLUS_INCLUDE_PATH}"
+export LIBRARY_PATH="${OTB_PREFIX}/lib:${LIBRARY_PATH}"
+export LD_LIBRARY_PATH="${OTB_PREFIX}/lib:${LD_LIBRARY_PATH}"
+export PKG_CONFIG_PATH="${OTB_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
 
 export BOOST_DIR="${OTB_PREFIX}"
 export BOOST_ROOT="${OTB_PREFIX}"
@@ -168,16 +167,23 @@ export NJOBS=${NJOBS:-${__ncores}}
 mkdir -p "${OTB_PREFIX}/bin" "${OTB_PREFIX}/lib" "${OTB_DOWNLOAD_DIR}" "${OTB_SRC_DIR}" \
         || return ${OTB_ERR_SETUP}
 
-for link_name in "${!OTB_SYMLINKS[@]}"; do
-	ln -fs "${OTB_SYMLINKS[${link_name}]}" "${OTB_PREFIX}/${link_name}"
-done
+if [[ -n "${BASH_VERSION}" ]]; then
+	for link_name in "${!OTB_SYMLINKS[@]}"; do
+		ln -fs "${OTB_SYMLINKS[${link_name}]}" "${OTB_PREFIX}/${link_name}"
+	done
+elif [[ -n "${ZSH_VERSION}" ]]; then
+	for link_name in ${(kv)OTB_SYMLINKS}; do
+		ln -fs "${OTB_SYMLINKS[${link_name}]}" "${OTB_PREFIX}/${link_name}"
+	done
+fi
 
 if [[ "${__os}" == "Linux" ]]; then
 	( cd "${OTB_PREFIX}" && ln -fs lib lib64 || return ${OTB_ERR_SETUP};)
-	LIBRARY_PATH+=":${OTB_PREFIX}/lib64"
-	LD_LIBRARY_PATH+=":${OTB_PREFIX}/lib64"
+	LIBRARY_PATH="${OTB_PREFIX}/lib64:${LIBRARY_PATH}"
+	LD_LIBRARY_PATH="${OTB_PREFIX}/lib64:${LD_LIBRARY_PATH}"
+	# this has been added for Ubuntu - but is this really needed?
 	if [[ -d /usr/lib/x86_64-linux-gnu ]]; then
-		__otb_path_munge LIBRARY_PATH "/usr/lib/x86_64-linux-gnu"
+		LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:${LIBRARY_PATH}"
 	fi
 fi
 
@@ -197,7 +203,7 @@ if [[  ${__my_dir} != */etc/profile.d ]]; then
         }  > "${OTB_PROFILE_DIR}/config.sh"
 else
 	# we are *using* the binary package
-	export OPAL_PREFIX=$(cd "$(dirname ${BASH_SOURCE})/../../"; pwd )
+	export OPAL_PREFIX="${__my_dir}"
 
 	# :FIXME: 
 	# On macOS we need neither LD_LIBRARY_PATH nor DYLD_LIBRARY_PATH due
@@ -225,8 +231,6 @@ unset __my_dir
 unset __os
 unset __ncores
 unset __usage
-unset __otb_path_munge
-unset __otb_path_remove
 
 # Local Variables:
 # mode: shell-script-mode
