@@ -35,7 +35,7 @@ sed -i.bak "${sed_expr}" "${OTB_PREFIX}/bin/gsl-config"
 # make script HDF5 wrappers relocatable
 #
 for f in h5c++ h5pcc; do
-	sed -i.bak 's|^prefix=.*|prefix=\$(cd \$(dirname \$0) \&\& pwd))|' "${OTB_PREFIX}/bin/$f"
+	sed -i.bak 's|^prefix=.*|prefix="\$(cd "\$(dirname \$0)/.." \&\& pwd)"|' "${OTB_PREFIX}/bin/$f"
 done
 
 #
