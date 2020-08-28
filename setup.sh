@@ -122,12 +122,13 @@ fi
 #
 if [[ -z "${OTB_TOOLSET}" ]]; then
 	if [[ "${__os}" == 'Darwin' ]]; then
-		export OTB_TOOLSET='clang'
+		OTB_TOOLSET='clang'
 	else
-		export OTB_TOOLSET='gcc'
+		OTB_TOOLSET='gcc'
 	fi
 	echo "TOOLSET not set, using '${OTB_TOOLSET}'!" 1>&2
 fi
+export OTB_TOOLSET
 
 #
 # a list of recipes might be defined if we are building the
@@ -203,18 +204,7 @@ if [[  ${__my_dir} != */etc/profile.d ]]; then
         }  > "${OTB_PROFILE_DIR}/config.sh"
 else
 	# we are *using* the binary package
-	export OPAL_PREFIX="${__my_dir}"
-
-	# :FIXME: 
-	# On macOS we need neither LD_LIBRARY_PATH nor DYLD_LIBRARY_PATH due
-	# to the patched RPATH in all executables and libraries. 
-	#
-	# The same might be true on Linux too, but this must be tested first.
-	#
-	# Not sure whether these environment variables are nedded while building
-	# the tool-chain.
-	#
-	[[ "${__os}" == 'Darwin' ]] && unset LD_LIBRARY_PATH
+	export OPAL_PREFIX="$(cd "${__my_dir}/../../" && pwd)"
 fi
 
 echo "Using:"
