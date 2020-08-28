@@ -103,8 +103,7 @@ postinstall_macOS() {
 			[[ "$f" =~ cmake ]] && continue
 			echo "post-process: $f"
 			# set rpath if not already set
-			otool -l "$f" | grep -q LC_RPATH || \
-				install_name_tool -add_rpath @executable_path/../lib "$f"
+			install_name_tool -add_rpath @executable_path/../lib "$f"
 			libs=( $(otool -L "$f" | awk "  /opt\/local\/lib|${OTB_PREFIX//\//\\/}\/lib/ {print \$1}") )
 			for l in ${libs[*]}; do
 				 install_name_tool -change "$l"  "@rpath/${l##*/}" "$f"
@@ -114,8 +113,7 @@ postinstall_macOS() {
 		for f in "${executables_4[@]}"; do
 			echo "post-process: $f"
 			# set rpath if not already set
-			otool -l "$f" | grep -q LC_RPATH || \
-				install_name_tool -add_rpath @executable_path/../../../../lib "$f"
+			install_name_tool -add_rpath @executable_path/../../../../lib "$f"
 			libs=( $(otool -L "$f" | awk "  /opt\/local\/lib|${OTB_PREFIX//\//\\/}\/lib/ {print \$1}") )
 			for l in ${libs[*]}; do
 				 install_name_tool -change "$l"  "@rpath/${l##*/}" "$f"
