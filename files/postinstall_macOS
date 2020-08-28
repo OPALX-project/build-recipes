@@ -47,6 +47,8 @@ postinstall_macOS() {
 		cp /opt/local/lib/libffi.6.dylib	"${OTB_PREFIX}/lib/"
 		cp /opt/local/lib/libedit.0.dylib	"${OTB_PREFIX}/lib/"
 		cp /opt/local/lib/libncurses.6.dylib	"${OTB_PREFIX}/lib/"
+		cp /opt/local/libexec/llvm-8.0/lib/libLLVM.dylib "${OTB_PREFIX}/lib/"
+		cp /opt/local/lib/gcc8/libgfortran.spec "${OTB_PREFIX}/lib/gcc8/"
 		# create required sym-links
 		{ 
 			cd ${OTB_PREFIX}/lib
