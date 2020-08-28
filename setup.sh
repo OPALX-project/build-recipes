@@ -204,7 +204,7 @@ if [[  ${__my_dir} != */etc/profile.d ]]; then
         }  > "${OTB_PROFILE_DIR}/config.sh"
 else
 	# we are *using* the binary package
-	export OPAL_PREFIX="$(cd "${__my_dir}/../../" && pwd)"
+	export OPAL_PREFIX="${OTB_PREFIX}"
 fi
 
 echo "Using:"
