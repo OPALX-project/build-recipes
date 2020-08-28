@@ -30,12 +30,10 @@ tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 # You might have to add the option --system-curl
 #
 mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
-if [[ "${OTB_TOOLSET}" == "gcc" ]]; then
-	export CC="$(which gcc)"
-	export CXX="$(which g++)"
-fi
 "${OTB_SRC_DIR}/cmake/cmake-$V/bootstrap" \
         --prefix="${OTB_PREFIX}" \
+	--no-system-libs \
+	--parallel=${NJOBS} \
         --verbose || exit ${OTB_ERR_CONFIGURE}
 #
 # Compile and install CMake
