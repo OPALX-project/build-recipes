@@ -18,8 +18,8 @@ declare -a OTB_RECIPES=(
 	300-build-gtest)
 
 declare -A OTB_SYMLINKS
-OTB_SYMLINKS['bin/cc']="/opt/local/bin/${OTB_COMPILER_VERSION}"
-OTB_SYMLINKS['bin/gcc']="/opt/local/bin/${OTB_COMPILER_VERSION}"
-OTB_SYMLINKS['bin/c++']="/opt/local/bin/${OTB_COMPILER_VERSION/gcc/g++}"
-OTB_SYMLINKS['bin/g++']="/opt/local/bin/${OTB_COMPILER_VERSION/gcc/g++}"
-OTB_SYMLINKS['bin/gfortran']="/opt/local/bin/${OTB_COMPILER_VERSION/gcc/gfortran}"
+OTB_SYMLINKS[bin/cc]="/opt/local/bin/${OTB_COMPILER_VERSION}"
+OTB_SYMLINKS[bin/gcc]="/opt/local/bin/${OTB_COMPILER_VERSION}"
+OTB_SYMLINKS[bin/c++]="/opt/local/bin/${OTB_COMPILER_VERSION/gcc/g++}"
+OTB_SYMLINKS[bin/g++]="/opt/local/bin/${OTB_COMPILER_VERSION/gcc/g++}"
+OTB_SYMLINKS[bin/gfortran]="/opt/local/bin/${OTB_COMPILER_VERSION/gcc/gfortran}"
