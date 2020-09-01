@@ -6,11 +6,43 @@ if [[ $_ == $0 ]]; then
 fi
 
 if [[ -n "${BASH_VERSION}" ]]; then
+	#
+	# BASH specific code
+	#
 	declare __my_name="$(basename -- "${BASH_SOURCE[0]}")"
 	declare __my_dir="$(cd "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+	__otb_path_munge () {
+		local _path=$1
+    		case ":${!_path}:" in
+			*:"$2":*)
+            		;;
+        		*)
+            			if [ -z "${!_path}" ] ; then
+                			eval ${_path}=\"$2\"
+            			else
+                			eval ${_path}=\"$2:${!_path}\"
+            			fi
+    		esac
+	}
 elif [[ -n "${ZSH_VERSION}" ]]; then
+	#
+	# ZSH specific code
+	#
 	declare __my_name="$(basename -- "${(%):-%N}")"
 	declare __my_dir="$(cd "$(dirname -- "${(%):-%N}")" && pwd)"
+	__otb_path_munge () {
+		local _path=$1
+    		case ":${(P)_path}:" in
+			*:"$2":*)
+            		;;
+        		*)
+            			if [ -z "${(P)_path}" ] ; then
+                			eval ${_path}=\"$2\"
+            			else
+                			eval ${_path}=\"$2:${(P)_path}\"
+				fi
+    		esac
+	}
 else
 	echo "Unsupported shell!" 1>&2
 	return
@@ -30,6 +62,12 @@ declare -ix OTB_ERR_INSTALL=9
 declare -ix OTB_ERR_POST_INSTALL=10
 declare -ix OTB_ERR=255
 
+#
+# cleanup settings from previous calls
+#
+unset OTB_RECIPES
+unset OTB_SYMLINKS
+
 __usage(){
 	echo "
 Usage:
@@ -41,7 +79,7 @@ Usage:
 #
 # This function is used in the build recipes to trap EXIT.
 #
-# Note: we cannot use it in this script!
+# Note: we cannot use it in this script due to the exit call!
 #
 otb_exit() {
         local -i ec=$?
@@ -111,7 +149,16 @@ else
 			                return ${OTB_ERR_ARG}
 		                fi
 		                source "$1" || return ${OTB_ERR_SETUP}
-		                ;;
+				#
+				# a list of recipes might be defined if we are building the
+				# tool-chain.
+				#
+				if [[ -n "${BASH_VERSION}" ]]; then
+					OTB_RECIPES=${OTB_RECIPES[@]/#/${__my_dir}}
+				elif [[ -n "${ZSH_VERSION}" ]]; then
+					OTB_RECIPES=${OTB_RECIPES/#/${__my_dir}}
+				fi
+				;;
 	        esac
 	        shift 1
         done
@@ -130,32 +177,25 @@ if [[ -z "${OTB_TOOLSET}" ]]; then
 fi
 export OTB_TOOLSET
 
-#
-# a list of recipes might be defined if we are building the
-# tool-chain.
-#
-if [[ -n "${BASH_VERSION}" ]]; then
-	for ((i=0; i<${#OTB_RECIPES[@]}; i++)); do
-	        OTB_RECIPES[i]="${__my_dir}/${OTB_RECIPES[i]}"
-	done
-elif [[ -n "${ZSH_VERSION}" ]]; then
-	for ((i=1; i<=${#OTB_RECIPES[@]}; i++)); do
-	        OTB_RECIPES[i]="${__my_dir}/${OTB_RECIPES[i]}"
-	done
-fi
 
 export OTB_PREFIX="${OTB_PREFIX:-${HOME}/OPAL}"
 export OTB_DOWNLOAD_DIR="${OTB_PREFIX}/tmp/Downloads"
 export OTB_SRC_DIR="${OTB_PREFIX}/tmp/src"
 export OTB_PROFILE_DIR="${OTB_PREFIX}/etc/profile.d"
 
-PATH="${OTB_PREFIX}/bin:${PATH}"
+__otb_path_munge PATH			"${OTB_PREFIX}/bin"
+__otb_path_munge C_INCLUDE_PATH		"${OTB_PREFIX}/include"
+__otb_path_munge CPLUS_INCLUDE_PATH	"${OTB_PREFIX}/include"
+__otb_path_munge LIBRARY_PATH		"${OTB_PREFIX}/lib"
+__otb_path_munge LD_LIBRARY_PATH	"${OTB_PREFIX}/lib"
+__otb_path_munge PKG_CONFIG_PATH	"${OTB_PREFIX}/lib/pkgconfig"
 
-export C_INCLUDE_PATH="${OTB_PREFIX}/include:${C_INCLUDE_PATH}"
-export CPLUS_INCLUDE_PATH="${OTB_PREFIX}/include:${CPLUS_INCLUDE_PATH}"
-export LIBRARY_PATH="${OTB_PREFIX}/lib:${LIBRARY_PATH}"
-export LD_LIBRARY_PATH="${OTB_PREFIX}/lib:${LD_LIBRARY_PATH}"
-export PKG_CONFIG_PATH="${OTB_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
+export PATH
+export C_INCLUDE_PATH
+export CPLUS_INCLUDE_PATH
+export LIBRARY_PATH
+export LD_LIBRARY_PATH
+export PKG_CONFIG_PATH
 
 export BOOST_DIR="${OTB_PREFIX}"
 export BOOST_ROOT="${OTB_PREFIX}"
@@ -166,14 +206,14 @@ __ncores=$(getconf _NPROCESSORS_ONLN)
 export NJOBS=${NJOBS:-${__ncores}}
 
 mkdir -p "${OTB_PREFIX}/bin" "${OTB_PREFIX}/lib" "${OTB_DOWNLOAD_DIR}" "${OTB_SRC_DIR}" \
-        || return ${OTB_ERR_SETUP}
+	|| return ${OTB_ERR_SETUP}
 
 if [[ -n "${BASH_VERSION}" ]]; then
 	for link_name in "${!OTB_SYMLINKS[@]}"; do
 		ln -fs "${OTB_SYMLINKS[${link_name}]}" "${OTB_PREFIX}/${link_name}"
 	done
 elif [[ -n "${ZSH_VERSION}" ]]; then
-	for link_name in ${(kv)OTB_SYMLINKS}; do
+	for link_name in ${(k)OTB_SYMLINKS}; do
 		ln -fs "${OTB_SYMLINKS[${link_name}]}" "${OTB_PREFIX}/${link_name}"
 	done
 fi
@@ -190,18 +230,18 @@ fi
 
 if [[  ${__my_dir} != */etc/profile.d ]]; then
 	# we are *building* the binary package
-        mkdir -p "${OTB_PROFILE_DIR}"
-        cp "${__my_dir}/setup.sh"      "${OTB_PROFILE_DIR}/opal.sh"
+	mkdir -p "${OTB_PROFILE_DIR}"
+	cp "${__my_dir}/setup.sh"      "${OTB_PROFILE_DIR}/opal.sh"
 
-        {
-                echo "OTB_TOOLSET=${OTB_TOOLSET}"
-                [[ -n ${OTB_COMPILER_VERSION} ]] && \
-                        echo "OTB_COMPILER_VERSION=${OTB_COMPILER_VERSION}"
+	{
+		echo "OTB_TOOLSET=${OTB_TOOLSET}"
+		[[ -n ${OTB_COMPILER_VERSION} ]] && \
+			echo "OTB_COMPILER_VERSION=${OTB_COMPILER_VERSION}"
 		[[ -n ${OTB_MPI} ]] && \
              	   	echo "OTB_MPI=${OTB_MPI}"
-                [[ -n ${OTB_MPI_VERSION} ]] && \
-                        echo "OTB_MPI_VERSION=${OTB_MPI_VERSION}"
-        }  > "${OTB_PROFILE_DIR}/config.sh"
+		[[ -n ${OTB_MPI_VERSION} ]] && \
+			echo "OTB_MPI_VERSION=${OTB_MPI_VERSION}"
+	}  > "${OTB_PROFILE_DIR}/config.sh"
 else
 	# we are *using* the binary package
 	export OPAL_PREFIX="${OTB_PREFIX}"
@@ -211,11 +251,11 @@ echo "Using:"
 echo "    Prefix:       ${OTB_PREFIX}"
 echo "    Compiler:     ${OTB_TOOLSET}"
 [[ -n ${OTB_COMPILER_VERSION} ]] && \
-        echo "    Version:      ${OTB_COMPILER_VERSION}"
+	echo "    Version:      ${OTB_COMPILER_VERSION}"
 [[ -n ${OTB_MPI} ]] && \
 	echo "    MPI:          ${OTB_MPI}"
 [[ -n ${OTB_MPI_VERSION} ]] && \
-        echo "    Version:      ${OTB_MPI_VERSION}"
+	echo "    Version:      ${OTB_MPI_VERSION}"
 
 unset __my_dir
 unset __os
