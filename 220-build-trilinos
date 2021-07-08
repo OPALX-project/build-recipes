@@ -38,12 +38,14 @@ elif [[ "${OS}" == "Darwin" ]]; then
 fi
 
 mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+CFLAGS="-Wno-error=implicit-function-declaration"
 CC=mpicc CXX=mpicxx cmake \
-        -DCMAKE_INSTALL_PREFIX:PATH="${OTB_PREFIX}" \
+	-DCMAKE_C_FLAGS="{CFLAGS}" \
+	-DCMAKE_INSTALL_PREFIX:PATH="${OTB_PREFIX}" \
         -DCMAKE_CXX_FLAGS:STRING="-DMPICH_IGNORE_CXX_SEEK -fPIC" \
         -DCMAKE_C_FLAGS:STRING="-DMPICH_IGNORE_CXX_SEEK -fPIC" \
-        -DCMAKE_CXX_STANDARD:STRING="11" \
         -DCMAKE_BUILD_TYPE:STRING=Release \
+	-DCMAKE_CXX_STANDARD=14 \
         -DTPL_ENABLE_DLlib:BOOL=OFF \
         -DTPL_ENABLE_QT:BOOL=OFF \
         -DTPL_ENABLE_MPI:BOOL=ON \
