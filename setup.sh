@@ -186,9 +186,9 @@ else
 				# tool-chain.
 				#
 				if [[ -n "${BASH_VERSION}" ]]; then
-					OTB_RECIPES=${OTB_RECIPES[@]/#/${__my_dir}}
+					OTB_RECIPES=${OTB_RECIPES[@]/#/${__my_dir}/}
 				elif [[ -n "${ZSH_VERSION}" ]]; then
-					OTB_RECIPES=${OTB_RECIPES/#/${__my_dir}}
+					OTB_RECIPES=${OTB_RECIPES/#/${__my_dir}/}
 				fi
 				;;
 	        esac
