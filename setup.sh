@@ -1,5 +1,11 @@
 #!/bin/bash
-
+#
+# Setup script for the OPAL Toolchain Builder.
+#
+# Notes:
+# - This script must be sourced not executed!
+# - Supported shells are BASH and ZSH (new default on macOS)
+#
 if [[ $_ == $0 ]]; then
 	echo "This file must be sourced not executed!"
 	exit 1
