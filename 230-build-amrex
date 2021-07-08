@@ -13,14 +13,29 @@ FNAME="$P-$V.tar.gz"
 DOWNLOAD_URL="https://github.com/AMReX-Codes/$P/archive/$V.tar.gz"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
+declare mydir=$(dirname "$0")
+mydir=$(cd "${mydir}" && pwd )
+declare -i mpi_major_version=${OTB_MPI_VERSION%%.*}
+
 # download
 test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 
 # unpack
 mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
+cd "${OTB_SRC_DIR}/$P/$P-$V"
+patch -p1 < ${mydir}/files/AMReX_ParallelDescriptor.patch || exit ${OTB_ERR_SYSTEM}
+
 
 # configure
+if (( mpi_major_version > 3 )); then
+	FORTRAN_INTERFACES='off'
+	FBASELIB='off'
+else
+	FORTRAN_INTERFACES='on'
+	FBASELIB='on'
+fi
+
 mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 CC=mpicc CXX=mpicxx FC=mpif90 cmake			\
         "-DCMAKE_INSTALL_PREFIX:PATH=${OTB_PREFIX}"	\
@@ -34,8 +49,8 @@ CC=mpicc CXX=mpicxx FC=mpif90 cmake			\
 	"-DENABLE_OMP=0"				\
 	"-DENABLE_DP=1"					\
 	"-DENABLE_EB=OFF"				\
-	"-DENABLE_FORTRAN_INTERFACES=ON"		\
-	"-DENABLE_FBASELIB=1"				\
+	"-DENABLE_FORTRAN_INTERFACES=${FORTRAN_INTERFACES}"	\
+	"-DENABLE_FBASELIB=${FBASELIB}"			\
 	"-DENABLE_AMRDATA=OFF"				\
 	"-DENABLE_DP_PARTICLES=1"			\
 	"-DENABLE_FPE=0"				\
