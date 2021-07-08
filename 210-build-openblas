@@ -31,8 +31,8 @@ cd "$P-$V" || exit ${OTB_ERR_SYSTEM}
 # nothing to configure
 
 # compile & install
-make TARGET=CORE2 || exit ${OTB_ERR_MAKE}
-make TARGET=CORE2 PREFIX="${OTB_PREFIX}" install || exit ${OTB_ERR_INSTALL}
+make DYNAMIC_ARCH=1 MACOSX_DEPLAYMENT_TARGET=10.15 || exit ${OTB_ERR_MAKE}
+make DYNAMIC_ARCH=1 MACOSX_DEPLAYMENT_TARGET=10.15 PREFIX="${OTB_PREFIX}" install || exit ${OTB_ERR_INSTALL}
 
 # Local Variables:
 # mode: shell-script-mode
