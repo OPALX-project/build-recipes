@@ -5,7 +5,7 @@
 # https://www.gnu.org/software/gsl/
 #
 P=gsl
-V=${GSL_VERSION:-2.6}
+V=${GSL_VERSION:-2.7}
 
 trap "otb_exit" EXIT
 
