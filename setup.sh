@@ -77,7 +77,33 @@ unset OTB_SYMLINKS
 __usage(){
 	echo "
 Usage:
-    source ${_my_name} [--prefix DIR] [CONFIG_FILE]
+	source ${_my_name} [--prefix DIR] [CONFIG_FILE]
+
+This script setup the environment for the OPAL Toolchain Builder.
+
+OPTIONS and ARGS
+--prefix
+	Installation prefix. The default is
+	\${HOME}/OPAL
+	Everything will go into this directory including
+	downloaded and temporary files.
+
+CONFIG_FILE
+	In the configuration file you can set the compiler
+	collection and the MPI flavour you want to use.
+	On Linux the compiler collection defaults to GCC
+	on Linux and Clang/LLVM on macOS. 
+	Please note: Depending on the OPAL features you
+	want to enable, you might need a Fortran compiler
+	in addition to C++11.
+	The default MPI flavour is OpenMPI.
+
+	In the configuration file you can also define 
+	which build-script have to be called.
+
+	Predefined configuration files are available in
+	the sub-directory 'config/{linux,macOS}'.
+
 " 1>&2
 	return ${OTB_ERR_ARG}
 }
