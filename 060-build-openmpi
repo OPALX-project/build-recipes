@@ -5,7 +5,7 @@
 # https://www.open-mpi.org
 #
 P=openmpi
-V=${OTB_MPI_VERSION:-3.1.6}
+V=${OTB_MPI_VERSION:-4.0.5}
 
 trap "otb_exit" EXIT
 
@@ -17,6 +17,18 @@ fi
 FNAME="$P-$V.tar.gz"
 DOWNLOAD_URL="http://www.open-mpi.org/software/ompi/v${V%.*}/downloads/${FNAME}"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
+
+case ${OTB_TOOLSET} in
+	gcc )
+		export CC='gcc'
+		export CXX='g++'
+		export FC='gfortran'
+		;;
+	clang )
+		export CC='clang'
+		export CXX='clang++'
+		,,
+esac
 
 # Download
 test -r "${SRC_FILE}" || \
