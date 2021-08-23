@@ -26,6 +26,8 @@ mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 cmake \
 	-DCMAKE_INSTALL_PREFIX="${OTB_PREFIX}" \
         -DCMAKE_BUILD_TYPE=RELEASE \
+	-DCMAKE_C_FLAGS_INIT="-fPIC" \
+	-DCMAKE_CXX_FLAGS_INIT="-fPIC" \
 	"${OTB_SRC_DIR}/$P/$P-release-$V" || exit ${OTB_ERR_CONFIGURE}
 
 # compile and install
