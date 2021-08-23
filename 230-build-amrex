@@ -44,7 +44,7 @@ CC=mpicc CXX=mpicxx FC=mpif90 cmake			\
 	"-DENABLE_LINEAR_SOLVERS_LEGACY=1"		\
 	"-DDEBUG=OFF"					\
 	"-DDIM=3"					\
-	"-DENABLE_PIC=0"				\
+	"-DENABLE_PIC=1"				\
 	"-DENABLE_MPI=1"				\
 	"-DENABLE_OMP=0"				\
 	"-DENABLE_DP=1"					\
