@@ -4,7 +4,7 @@
 #
 # https://gmplib.org
 #
-P=MITHRA
+P=mithra
 V=${MITHRA_VERSION:-2.0}
 
 trap "otb_exit" EXIT
@@ -25,7 +25,7 @@ tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 
 # compile and install
 cd "${OTB_SRC_DIR}/$P/$P-$V" || exit ${OTB_ERR_SYSTEM}
-make -j ${NJOBS} || exit ${OTB_ERR_MAKE}
+CFLAGS='-fPIC' make -e -j ${NJOBS} || exit ${OTB_ERR_MAKE}
 make install || exit ${OTB_ERR_INSTALL}
 
 mkdir -p "${OTB_PREFIX}/include/mithra"
