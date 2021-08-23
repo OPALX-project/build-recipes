@@ -6,7 +6,7 @@
 # https://gmplib.org
 #
 P=gmp
-V=${GMP_VERSION:-6.2.0}
+V=${GMP_VERSION:-6.2.1}
 
 trap "otb_exit" EXIT
 
