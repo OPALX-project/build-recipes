@@ -129,7 +129,7 @@ otb_exit() {
         elif (( ec == OTB_ERR_SETUP )); then
                 echo "error in setting everything up!"
         elif (( ec == OTB_ERR_SYSTEM )); then
-                echo "unexpected systm error!"
+                echo "unexpected system error!"
         elif (( ec == OTB_ERR_DOWNLOAD )); then
                 echo "error in downloading the source file!"
         elif (( ec == OTB_ERR_UNTAR )); then
@@ -232,6 +232,7 @@ export PKG_CONFIG_PATH
 export BOOST_DIR="${OTB_PREFIX}"
 export BOOST_ROOT="${OTB_PREFIX}"
 export HDF5_ROOT="${OTB_PREFIX}"
+export MITHRA_PREFIX="${OTB_PREFIX}"
 
 __ncores=$(getconf _NPROCESSORS_ONLN)
 [[ ${__ncores} > 10 ]] && __ncores=10
@@ -282,12 +283,16 @@ fi
 echo "Using:"
 echo "    Prefix:       ${OTB_PREFIX}"
 echo "    Compiler:     ${OTB_TOOLSET}"
-[[ -n ${OTB_COMPILER_VERSION} ]] && \
+if [[ -n ${OTB_COMPILER_VERSION} ]]; then
 	echo "    Version:      ${OTB_COMPILER_VERSION}"
-[[ -n ${OTB_MPI} ]] && \
+fi
+if [[ -n ${OTB_MPI} ]]; then
 	echo "    MPI:          ${OTB_MPI}"
-[[ -n ${OTB_MPI_VERSION} ]] && \
+fi
+if [[ -n ${OTB_MPI_VERSION} ]]; then
+	export OTB_MPI_VERSION
 	echo "    Version:      ${OTB_MPI_VERSION}"
+fi
 
 unset __my_dir
 unset __os
