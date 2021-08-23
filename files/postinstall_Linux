@@ -25,32 +25,18 @@ postinstall_linux() {
 		fi
 	}
 
-	if [[ -z $(which patchelf) ]]; then
-		echo -e "patchelf missing!\nAborting..." 1>&2
-		exit 1
-	fi
 	#
-	# set RPATH to $ORIGIN in all shared libraries to make them
-	# relocatable.
+	# set RPATH relative to $ORIGIN in all shared libraries and executables
+	# under ${OTB_PREFIX}/{bin,lib}
 	#
-	for f in "${OTB_PREFIX}"/lib/*.so; do
-		# is this an ELF 64-bit binary?
-		file -L "$f" | grep -q "ELF 64-bit" || continue
-		rpath=$(patchelf --print-rpath "$f")
-		[[ -z "${rpath}" ]] && continue
-		patchelf --force-rpath --set-rpath '$ORIGIN' "$f"
-	done
+	echo "Patching RPATH in executables and libraries..."
+	while read depth fname; do
+		file "${fname}" | egrep -q "ELF 64-bit LSB (shared|executable) " || continue
+		local str=$(printf "../%0.s" $(seq 1 $depth))
+		local rpath='$ORIGIN/'"${str}lib"
+		patchelf --force-rpath --set-rpath "${rpath}" "${fname}"
+	done  < <(find "${OTB_PREFIX}/bin" "${OTB_PREFIX}/lib" -type f -printf "%d %p\n" )
 
-	#
-	# set RPATH to $ORIGIN in all ELF binaries found in "${OTB_PREFIX}/bin"
-	# to make them relocatable.
-	#
-
-	for f in "${OTB_PREFIX}"/bin/*; do
-		# is this an ELF 64-bit binary?
-		file -L "$f" | grep -q "ELF 64-bit" || continue
-		patchelf --force-rpath --set-rpath '$ORIGIN/../lib' "$f"
-	done
 	copy_non_standard_system_libs
 }
 
