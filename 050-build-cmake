@@ -34,7 +34,10 @@ mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
         --prefix="${OTB_PREFIX}" \
 	--no-system-libs \
 	--parallel=${NJOBS} \
-        --verbose || exit ${OTB_ERR_CONFIGURE}
+        --verbose \
+	-- \
+	-DCMAKE_USE_OPENSSL=OFF \
+       || exit ${OTB_ERR_CONFIGURE}
 #
 # Compile and install CMake
 #
