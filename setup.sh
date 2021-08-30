@@ -54,7 +54,18 @@ else
 	return
 fi
 
-declare __os=$(uname -s)
+export OTB_OS=$(uname -s)
+case ${OTB_OS} in
+	Darwin )
+		OTB_OS='macOS'
+		;;
+	Linux )
+		:
+		;;
+	* )
+		echo "Unsupported OS -- ${OS}" 1>&2
+		;;
+esac
 
 declare -ix OTB_ERR_ARG=1
 declare -ix OTB_ERR_SETUP=2
@@ -200,7 +211,7 @@ fi
 # OTB_TOOLSET is used in the boost build recipe
 #
 if [[ -z "${OTB_TOOLSET}" ]]; then
-	if [[ "${__os}" == 'Darwin' ]]; then
+	if [[ "${OTB_OS}" == 'Darwin' ]]; then
 		OTB_TOOLSET='clang'
 	else
 		OTB_TOOLSET='gcc'
@@ -208,7 +219,6 @@ if [[ -z "${OTB_TOOLSET}" ]]; then
 	echo "TOOLSET not set, using '${OTB_TOOLSET}'!" 1>&2
 fi
 export OTB_TOOLSET
-
 
 export OTB_PREFIX="${OTB_PREFIX:-${HOME}/OPAL}"
 export OTB_DOWNLOAD_DIR="${OTB_PREFIX}/tmp/Downloads"
@@ -251,7 +261,7 @@ elif [[ -n "${ZSH_VERSION}" ]]; then
 	done
 fi
 
-if [[ "${__os}" == "Linux" ]]; then
+if [[ "${OTB_OS}" == "Linux" ]]; then
 	( cd "${OTB_PREFIX}" && ln -fs lib lib64 || return ${OTB_ERR_SETUP};)
 	LIBRARY_PATH="${OTB_PREFIX}/lib64:${LIBRARY_PATH}"
 	LD_LIBRARY_PATH="${OTB_PREFIX}/lib64:${LD_LIBRARY_PATH}"
@@ -295,7 +305,6 @@ if [[ -n ${OTB_MPI_VERSION} ]]; then
 fi
 
 unset __my_dir
-unset __os
 unset __ncores
 unset __usage
 
