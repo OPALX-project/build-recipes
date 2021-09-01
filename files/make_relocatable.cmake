@@ -1,3 +1,5 @@
+cmake_policy(VERSION 3.12)
+
 # This script fixes the absolute paths, which reference a file within
 # a tree (usually the install dir).
 #
