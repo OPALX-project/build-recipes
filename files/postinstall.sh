@@ -29,7 +29,7 @@ find ${OTB_PREFIX} -name "*.la" -exec rm {} \;
 # make script 'gsl-config' relocatable
 #
 sed_expr=''
-sed_expr+='s|^prefix=.*|prefix=\$(cd \$(dirname \$0) \&\& pwd))|g;'
+sed_expr+='s|^prefix=.*|prefix=\$(cd \$(dirname \$0) \&\& pwd)|g;'
 sed_expr+='s|'"${OTB_PREFIX}"'|\"${prefix}\"|g;'
 sed -i.bak "${sed_expr}" "${OTB_PREFIX}/bin/gsl-config"
 
