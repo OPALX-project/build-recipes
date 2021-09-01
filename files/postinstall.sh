@@ -1,5 +1,7 @@
 #!/bin/bash
 
+shopt -s nullglob
+
 if [[ -n "$1" ]]; then
         if [[ -d "$1" ]]; then
                 OTB_PREFIX="$1"
