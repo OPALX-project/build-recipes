@@ -80,17 +80,6 @@ patch_Trilinos() {
 	rm -f "${OTB_PREFIX}"/include/Makefile.export.*.bak
 }
 
-#
-# strip binaries
-#
-strip_unneeded() {
-	for f in "${OTB_PREFIX}/bin/"*; do
-		file "$f" | grep -q "ELF 64-bit" && strip --strip-unneeded "$f"
-	done
-	for f in "${OTB_PREFIX}"/libexec/gcc/x86_64*/*/*; do
-		file "$f" | grep -q "ELF 64-bit" && strip --strip-unneeded "$f"
-	done
-}
 
 #
 # make CMake files relocatable
@@ -100,6 +89,5 @@ make_cmake_module_relocatable() {
 }
 
 patch_Trilinos
-strip_unneeded
 make_cmake_module_relocatable
 
