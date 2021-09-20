@@ -36,15 +36,25 @@ tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 
 # configure
 mkdir -v -p "${OTB_SRC_DIR}/$P/build" && cd "$_"  || exit ${OTB_ERR_SYSTEM}
+
+# OS dependent args
+declare -a args=()
+if [[ $(uname -s) == Darwin ]]; then
+	sysroot=$(xcrun --show-sdk-path)
+	args+=( "--with-sysroot=${sysroot}" )
+fi
+
 "${OTB_SRC_DIR}/$P/$P-$V/configure" \
         --prefix="${OTB_PREFIX}" \
-        --with-gmp="${OTB_PREFIX}" \
-        --with-mpfr="${OTB_PREFIX}" \
-        --with-mpc="${OTB_PREFIX}" \
         --enable-languages=c,c++,objc,obj-c++,lto,fortran \
         --enable-lto \
         --disable-multilib \
-        --with-build-config=bootstrap-debug || exit ${OTB_ERR_CONFIGURE}
+        --with-build-config=bootstrap-debug \
+        --with-gmp="${OTB_PREFIX}" \
+        --with-mpfr="${OTB_PREFIX}" \
+        --with-mpc="${OTB_PREFIX}" \
+	"${args[@]}" \
+	|| exit ${OTB_ERR_CONFIGURE}
 
 # compile & install
 make -j 3 || exit ${OTB_ERR_MAKE}
