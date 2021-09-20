@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+# OPAL Toolchain Build recipe for the ICU C libraries.
+#
+# https://icu.unicode.org
+#
+P=icu4c
+V=${ICU_VERSION:-69.1}
+
+trap "otb_exit" EXIT
+
+FNAME="$P-${V/./_}-src.tgz"
+DOWNLOAD_URL="https://github.com/unicode-org/icu/releases/download/release-69-1/${FNAME}"
+SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
+
+# download
+test -r "${SRC_FILE}" || \
+    curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
+
+# unpack 
+mkdir -p "${OTB_SRC_DIR}/$P/$P-$V" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+tar -xv --directory "${OTB_SRC_DIR}/$P/$P-$V" --strip-components 1 -f "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
+cd "${OTB_SRC_DIR}/$P/$P-$V" || exit ${OTB_ERR_SYSTEM}
+
+# configure
+case ${OTB_TOOLSET} in
+	gcc )
+		CC=gcc
+		CXX=g++
+		;;
+	clang )
+		CC=clang
+		CXX=clang++
+		;;
+	* )
+		echo "unsupported toolset - ${OTB_TOOLSET}" 1>&2
+		;;
+esac
+
+mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_"
+CC=${CC} CXX=${CXX} "${OTB_SRC_DIR}/$P/$P-$V/source/configure" \
+        --prefix="${OTB_PREFIX}" \
+        --enable-static \
+	--disable-shared \
+        --enable-rpath \
+        --with-pic || exit ${OTB_ERR_CONFIGURE}
+
+# compile and install
+make -j ${NJOBS} || exit ${OTB_ERR_MAKE}
+make install || exit ${OTB_ERR_INSTALL}
+
+# Local Variables:
+# mode: shell-script-mode
+# sh-basic-offset: 8
+# End:
+
