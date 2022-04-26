@@ -5,7 +5,7 @@
 # https://trilinos.github.io
 #
 P=trilinos
-V=${TRILINOS_VERSION:-13.0.1}
+V=${TRILINOS_VERSION:-13.2.0}
 
 trap "otb_exit" EXIT
 
@@ -34,6 +34,8 @@ if [[ "${OS}" == "Linux" ]]; then
         config_args+=( "-DCMAKE_Fortran_FLAGS:STRING=-fPIC" )
 elif [[ "${OS}" == "Darwin" ]]; then
         config_args+=( "-DTrilinos_ENABLE_Fortran=OFF" )
+	config_args+=( "-DCMAKE_CXX_FLAGS=-Wno-implicit-function-declaration" )
+	config_args+=( "-DCMAKE_C_FLAGS=-Wno-implicit-function-declaration" )
 fi
 
 mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
@@ -59,6 +61,7 @@ CC=mpicc CXX=mpicxx cmake \
         -DTrilinos_ENABLE_Amesos:BOOL=ON \
         -DTrilinos_ENABLE_Amesos2:BOOL=ON \
         -DTrilinos_ENABLE_AztecOO:BOOL=ON \
+	-DAztecOO_DISABLE_STRONG_WARNINGS:BOOL=ON \
         -DTrilinos_ENABLE_Belos:BOOL=ON \
         -DTrilinos_ENABLE_Epetra:BOOL=ON \
         -DTrilinos_ENABLE_EpetraExt:BOOL=ON \
@@ -66,6 +69,7 @@ CC=mpicc CXX=mpicxx cmake \
         -DTrilinos_ENABLE_Ifpack:BOOL=ON \
         -DTrilinos_ENABLE_Ifpack2:BOOL=ON \
         -DTrilinos_ENABLE_Isorropia:BOOL=ON \
+        -DTrilinos_ENABLE_Kokkos:BOOL=ON \
         -DTrilinos_ENABLE_ML:BOOL=ON \
         -DTrilinos_ENABLE_NOX:BOOL=ON \
 	-DTrilinos_ENABLE_MueLu:BOOL=ON \
