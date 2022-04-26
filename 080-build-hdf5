@@ -5,7 +5,7 @@
 # https://www.hdfgroup.org/solutions/hdf5/
 #
 P=hdf5
-V=${HDF5_VERSION:-1.10.7}
+V=${HDF5_VERSION:-1.10.8}
 
 trap "otb_exit" EXIT
 

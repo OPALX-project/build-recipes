@@ -5,7 +5,7 @@
 # http://zlib.net
 #
 P=zlib
-V=${ZLIB_VERSION:-1.2.11}
+V=${ZLIB_VERSION:-1.2.12}
 
 trap "otb_exit" EXIT
 
