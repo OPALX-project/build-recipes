@@ -14,6 +14,7 @@ DOWNLOAD_URL="http://glaros.dtc.umn.edu/gkhome/fetch/sw/$P/${FNAME}"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
+mkdir -p "${OTB_DOWNLOAD_DIR}"
 test -r "${SRC_FILE}"  || \
     curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 

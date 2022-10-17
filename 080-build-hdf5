@@ -14,6 +14,7 @@ DOWNLOAD_URL="https://support.hdfgroup.org/ftp/HDF5/releases/$P-${V%.*}/$P-$V/sr
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
+mkdir -p "${OTB_DOWNLOAD_DIR}"
 test -r "${SRC_FILE}"  || \
     curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 

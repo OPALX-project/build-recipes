@@ -31,6 +31,7 @@ case ${OTB_TOOLSET} in
 esac
 
 # Download
+mkdir -p "${OTB_DOWNLOAD_DIR}"
 test -r "${SRC_FILE}" || \
     curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 

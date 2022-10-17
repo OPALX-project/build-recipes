@@ -18,6 +18,7 @@ mydir=$(cd "${mydir}" && pwd )
 declare -i mpi_major_version=${OTB_MPI_VERSION%%.*}
 
 # download
+mkdir -p "${OTB_DOWNLOAD_DIR}"
 test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 
 # unpack

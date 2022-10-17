@@ -14,6 +14,7 @@ DOWNLOAD_URL="https://github.com/$P/$P/tarball/$P-release-${V//./-}"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
+mkdir -p "${OTB_DOWNLOAD_DIR}"
 test -r "${SRC_FILE}" || \
     curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 
