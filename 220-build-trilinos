@@ -5,7 +5,7 @@
 # https://trilinos.github.io
 #
 P=trilinos
-V=${TRILINOS_VERSION:-13.2.0}
+V=${TRILINOS_VERSION:-13.0.1}
 
 trap "otb_exit" EXIT
 
