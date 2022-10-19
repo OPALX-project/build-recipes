@@ -1,7 +1,7 @@
 export OTB_TOOLSET=clang
 export OTB_COMPILER_VERSION=$(clang --version | head -1)
 export OTB_MPI=openmpi
-export OTB_MPI_VERSION=4.1.2
+export OTB_MPI_VERSION=4.1.4
 
 declare -a OTB_RECIPES=(
 	050-build-cmake
