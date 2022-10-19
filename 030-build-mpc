@@ -15,7 +15,7 @@ if [[ -n "${OTB_TOOLSET}" ]] &&  [[ "${OTB_TOOLSET}" != "gcc" ]]; then
 fi
 
 FNAME="$P-$V.tar.gz"
-DOWNLOAD_URL="ftp://ftp.gnu.org/gnu/$P/$P-$V.tar.gz"
+DOWNLOAD_URL="http://ftp.gnu.org/gnu/$P/$P-$V.tar.gz"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
