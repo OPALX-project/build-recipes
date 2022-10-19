@@ -1,0 +1,15 @@
+Common subdirectories: mithra-2.0.orig/doc and mithra-2.0/doc
+diff -u mithra-2.0.orig/makefile mithra-2.0/makefile
+--- mithra-2.0.orig/makefile	2020-09-29 14:50:06.000000000 +0200
++++ mithra-2.0/makefile	2022-09-29 11:56:42.000000000 +0200
+@@ -1,6 +1,7 @@
+ SHELL = /bin/sh
+ COMP = mpic++
+ 
++CFLAGS+=-fPIC
+ CFLAGS+=-std=c++11
+ CFLAGS+=-O3
+ 
+Only in mithra-2.0: obj
+Common subdirectories: mithra-2.0.orig/prj and mithra-2.0/prj
+Common subdirectories: mithra-2.0.orig/src and mithra-2.0/src
