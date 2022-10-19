@@ -10,7 +10,7 @@ V=${GSL_VERSION:-2.7}
 trap "otb_exit" EXIT
 
 FNAME="$P-$V.tar.gz"
-DOWNLOAD_URL="ftp://ftp.gnu.org/gnu/$P/${FNAME}"
+DOWNLOAD_URL="http://ftp.gnu.org/gnu/$P/${FNAME}"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
