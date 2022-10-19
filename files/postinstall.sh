@@ -54,7 +54,9 @@ sed_expr+='s|'"${OTB_PREFIX}"'|\"${prefix}\"|g;'
 sed_expr+='s|^prefix=.*|prefix=${pcfiledir}/../..|g;'
 sed_expr+='s|'"${OTB_PREFIX}"'|\"${prefix}\"|g;'
 for f in "${OTB_PREFIX}"/lib/pkgconfig/*.pc; do
-	sed -i.bak "${sed_expr}" "$f"
+	# please note: sed on macOS doesn't support the
+       	#              option -i without argument!
+	[[ -f "$f" ]] && sed -i.bak "${sed_expr}" "$f"
 done
 rm -f "${OTB_PREFIX}"/lib/pkgconfig/*.pc.bak
 
