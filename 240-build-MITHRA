@@ -2,7 +2,7 @@
 #
 # OPAL Toolchain Build recipe to build MITHRA.
 #
-# https://gmplib.org
+# https://
 #
 P=mithra
 V=${MITHRA_VERSION:-2.0}
@@ -26,7 +26,8 @@ tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 
 # compile and install
 cd "${OTB_SRC_DIR}/$P/$P-$V" || exit ${OTB_ERR_SYSTEM}
-CFLAGS='-fPIC -std=c++11' make -e -j ${NJOBS} || exit ${OTB_ERR_MAKE}
+patch -p 1 < "${OTB_RECIPE_DIR}/files/mithra-fPIC.patch"
+make -e -j ${NJOBS} || exit ${OTB_ERR_MAKE}
 make install || exit ${OTB_ERR_INSTALL}
 
 mkdir -p "${OTB_PREFIX}/include/mithra"
