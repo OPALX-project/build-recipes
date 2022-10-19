@@ -28,7 +28,7 @@ CC=mpicc CXX=mpicxx FC=mpifort "${OTB_SRC_DIR}/$P/$P-$V/configure" \
         --prefix="${OTB_PREFIX}" \
         --enable-shared \
         --enable-parallel \
-        --enable-cxx \
+        --disable-cxx \
         --enable-unsupported \
         --with-pic || exit ${OTB_ERR_CONFIGURE}
 
