@@ -29,7 +29,7 @@ postinstall_macOS() {
 			local path_prefix="@executable_path/${str}lib"
 
 			# replace absolute paths of needed libraries
-			libs=( $(otool -L "$f" | awk "  /${OTB_PREFIX//\//\\/}\/lib/ {print \$1}") )
+			libs=( $(otool -L "$f" | awk "/${OTB_PREFIX//\//\\/}\/lib/ {print \$1}") )
 			[[ -z "${libs}" ]] && return
 			echo "post-process executable: $f"
 			for l in ${libs[*]}; do
@@ -50,7 +50,7 @@ postinstall_macOS() {
 			# get needed libs to be changed
 			local str=$(printf "../%0.s" $(seq 1 $d))
 			local path_prefix="@loader_path/${str}lib"
-			libs=( $(otool -L "$f" | awk "/  ${OTB_PREFIX//\//\\/}\/lib/ {print \$1}") )
+			libs=( $(otool -L "$f" | awk "/${OTB_PREFIX//\//\\/}\/lib/ {print \$1}") )
 
 			if [[ -z "${new_id}" ]] && [[ -z "${libs}" ]]; then
 			       return
