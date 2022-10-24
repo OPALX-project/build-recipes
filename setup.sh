@@ -54,6 +54,7 @@ else
 	return
 fi
 
+export OTB_RECIPE_DIR="${__my_dir}"
 export OTB_OS=$(uname -s)
 case ${OTB_OS} in
 	Darwin )

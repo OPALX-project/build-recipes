@@ -36,6 +36,9 @@ if [[ "${OTB_TOOLSET}" == 'clang' ]] && [[ "${OTB_OS}" == 'macOS' ]]; then
 	ENABLE_AMR_MG_SOLVER='OFF'
 fi
 
+export CC=mpicc
+export CXX=mpicxx
+export FC=mpifort
 cmake \
 	-DCMAKE_INSTALL_PREFIX="${OTB_PREFIX}" \
         -DCMAKE_BUILD_TYPE=RELEASE \
