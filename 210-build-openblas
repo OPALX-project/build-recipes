@@ -29,11 +29,23 @@ tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 cd "$P-$V" || exit ${OTB_ERR_SYSTEM}
 
 # configure
-# nothing to configure
+OS=$(uname -s)
+declare -a config_args=()
+if [[ "${OS}" == "Linux" ]]; then
+        :
+elif [[ "${OS}" == "Darwin" ]]; then
+	config_args+=( "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15" )
+fi
+mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+cmake \
+	-DCMAKE_INSTALL_PREFIX:PATH="${OTB_PREFIX}" \
+	-DDYNAMIC_ARCH=1 \
+        "${config_args[@]}" \
+        "${OTB_SRC_DIR}/$P/$P-$V" || exit ${OTB_ERR_CONFIGURE}
 
 # compile & install
-make DYNAMIC_ARCH=1 MACOSX_DEPLAYMENT_TARGET=10.15 || exit ${OTB_ERR_MAKE}
-make DYNAMIC_ARCH=1 MACOSX_DEPLAYMENT_TARGET=10.15 PREFIX="${OTB_PREFIX}" install || exit ${OTB_ERR_INSTALL}
+make || exit ${OTB_ERR_MAKE}
+make install || exit ${OTB_ERR_INSTALL}
 
 # Local Variables:
 # mode: shell-script-mode
