@@ -22,23 +22,40 @@ postinstall_macOS() {
 	#
 	make_relocatable() {
 		patch_exe() {
+			#
+			# - replace absolute path and relative
+			#   path names with '@rpath' of
+			#   dependent libraries with
+			#   @executable_path/... 
+			#
 			local -r f="$1"
 			local -r d="$2"
 
+			# get list dependent libraries
+			libs=( $(otool -L "$f" | awk \
+					-v prefix="${OTB_PREFIX}" \
+					'/^[[:space:]].*/ && (($1 ~ prefix) || ($1 ~ "@rpath")) {print $1}') )
+			if [[ -z "${libs}" ]]; then
+				return 0
+			fi
+			echo "post-processing executable: $f"
 			local str=$(printf "../%0.s" $(seq 1 $d))
 			local path_prefix="@executable_path/${str}lib"
 
-			# replace absolute paths of needed libraries
-			libs=( $(otool -L "$f" | awk "/${OTB_PREFIX//\//\\/}\/lib/ {print \$1}") )
-			[[ -z "${libs}" ]] && return
-			echo "post-process executable: $f"
 			for l in ${libs[*]}; do
 				local new="${path_prefix}/${l##*/}"
-				echo "    changing '$l' -> '${new}'"
+				echo "    changing dependent shared library name from '$l' to '${new}'"
 				install_name_tool -change "$l" "${new}" "$f"
 			done
 		}
 		patch_lib() {
+			#
+			# - Change the id to
+			#   @rpath/...
+			# - Change dependent shared library install names to
+			#   @loader_path/...
+			#   if the name matches ${OTB_PREFIX} or @rpath
+			#
 			local -r f="$1"
 			local -r d="$2"
 
@@ -50,39 +67,50 @@ postinstall_macOS() {
 			# get needed libs to be changed
 			local str=$(printf "../%0.s" $(seq 1 $d))
 			local path_prefix="@loader_path/${str}lib"
-			libs=( $(otool -L "$f" | awk "/${OTB_PREFIX//\//\\/}\/lib/ {print \$1}") )
+			libs=( $(otool -L "$f" | awk \
+					-v prefix="${OTB_PREFIX}" -v lib="${f##*/}" \
+					'(($1 ~ prefix) || ($1 ~ "@rpath")) && ($1 !~ lib) {print $1}') )
 
 			if [[ -z "${new_id}" ]] && [[ -z "${libs}" ]]; then
 			       return
 			fi
-			echo "post-process library: $f"
+			echo "post-processing library: $f"
 			if [[ -n "${new_id}" ]]; then
 				echo "    setting id to '${new_id}'"
 				install_name_tool -id "${new_id}" "$f"
 			fi
 			for l in ${libs[*]}; do
 				local new="${path_prefix}/${l##*/}"
-				echo "    changing '$l' -> '${new}'"
+				echo "    changing dependent shared library name from '$l' to '${new}'"
 				install_name_tool -change "$l"  "${new}" "$f"
 			done
 		}
 
 		patch_bundle() {
+			#
+			# - Change dependent shared library install names to
+			#   @loader_path/...
+			#   if the name matches ${OTB_PREFIX} or @rpath
+			#
+			# please note:
+			#	bundles do not have an id!
+			#
 			local -r f="$1"
 			local -r d="$2"
 
 			# get needed libs to be changed
+			libs=( $(otool -L "$f" | awk \
+					-v prefix="${OTB_PREFIX}" -v lib="${f##*/}" \
+					'$0 ~ "^[[:space:]]/.*" && (($1 ~ prefix) || ($1 ~ "@rpath")) {print $1}') )
+			if [[ -z "${libs}" ]]; then
+				return 0
+			fi
+			echo "post-processing bundle: $f"
 			local str=$(printf "../%0.s" $(seq 1 $d))
 			local path_prefix="@loader_path/${str}lib"
-			libs=( $(otool -L "$f" | awk "/  ${OTB_PREFIX//\//\\/}\/lib/ {print \$1}") )
-
-			if [[ -z "${libs}" ]]; then
-			       return
-			fi
-			echo "post-process library: $f"
 			for l in ${libs[*]}; do
 				local new="${path_prefix}/${l##*/}"
-				echo "    changing '$l' -> '${new}'"
+				echo "    changing dependent shared library name from '$l' to '${new}'"
 				install_name_tool -change "$l"  "${new}" "$f"
 			done
 		}
