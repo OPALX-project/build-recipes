@@ -3,7 +3,7 @@
 # OPAL Toolset Build recipe for Boost
 #
 # https://www.boost.org
-#
+# adas was 79 81
 P=boost
 V=${BOOST_VERSION:-1_81_0}
 
@@ -14,12 +14,13 @@ DOWNLOAD_URL="https://netcologne.dl.sourceforge.net/project/$P/$P/${V//_/.}/${FN
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
+
 mkdir -p "${OTB_DOWNLOAD_DIR}"
 test -r "${SRC_FILE}"  || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 
 # unpack
 mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
-tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
+#tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 cd "${OTB_SRC_DIR}/$P/${P}_$V" || exit ${OTB_ERR_CONFIGURE}
 patch -p1 <<EOF
 --- src.orig/libs/context/build/Jamfile.v2	2018-08-01 22:50:46.000000000 +0200
@@ -63,7 +64,7 @@ cd "${OTB_SRC_DIR}/$P/${P}_$V"  || exit ${OTB_ERR_SYSTEM}
         variant=release \
         link=shared,static \
         threading=multi \
-	cxxflags=-fPIC cflags=-fPIC \
+	cxxflags="-fPIC -arch arm64" cflags=-fPIC \
         install -j 3 \
         || exit ${OTB_ERR_INSTALL}
 

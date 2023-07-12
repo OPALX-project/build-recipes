@@ -1,0 +1,35 @@
+#!/bin/bash
+#
+# OPAL Toolchain Build recipe for the Google Test framework
+#
+# https://github.com/google/googletest
+# http://www.fftw.org/fftw-3.3.10.tar.gz
+P=fftw-3
+V_MAJOR=3
+V_MINOR=10
+V=${V_MAJOR}.${V_MINOR}
+NJOBS=16
+trap "otb_exit" EXIT
+
+FNAME="$P-$V.tar.gz"
+DOWNLOAD_URL="http://www.fftw.org/${P}.${V}.tar.gz"
+SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
+
+# download
+curl -L \
+    --output "${SRC_FILE}" \
+    "${DOWNLOAD_URL}"
+
+# unpack
+mkdir -p "${OTB_SRC_DIR}/$P" && cd $_
+tar xvf "${SRC_FILE}"
+rm -rf "${OTB_SRC_DIR}/${P}/${P}.${V}/build"
+mkdir -p "${OTB_SRC_DIR}/${P}/${P}.${V}/build" && cd $_
+#
+#cmake CFLAGS="-arch arm64 -mmacosx-version-min=11.0" -DCMAKE_INSTALL_PREFIX=${OTB_PREFIX}  ..
+cd ..
+./configure --enable-float  --enable-shared --enable-threads --prefix ${OTB_PREFIX}
+#
+make -j ${NJOBS}
+make install
+make check
