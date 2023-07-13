@@ -5,12 +5,12 @@
 # https://github.com/google/googletest
 #
 P=kokkos
-V_MAJOR=4 #3
-V_MINOR=1  #5
+V_MAJOR=4
+V_MINOR=1
 V=${V_MAJOR}.${V_MINOR}.00
 # Default to serial if no backend specified
 build_type=${build_type:-serial}
-NJOBS=16
+NJOBS=${NJOBS:-16}
 
 compute_capability=${compute_capability:-AMPERE80}
 
@@ -20,14 +20,16 @@ FNAME="$P-$V.tar.xz"
 DOWNLOAD_URL="https://github.com/kokkos/kokkos/archive/$V/${FNAME}"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
-# download
-#curl -L \
-#    --output "${SRC_FILE}" \
-#    "https://github.com/kokkos/kokkos/archive/$V/$P-$V.tar.gz"
+if [ ! -f "$SRC_FILE" ]; then
+    # download
+    curl -L \
+        --output "${SRC_FILE}" \
+        "https://github.com/kokkos/kokkos/archive/$V/$P-$V.tar.gz"
 
-# unpack
-mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
-#tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
+    # unpack
+    mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+    tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
+fi
 
 compiler=${compiler:-"$(which gcc)"}
 NVCC_WRAPPER_DEFAULT_COMPILER=${NVCC_WRAPPER_DEFAULT_COMPILER:-$compiler}
@@ -67,4 +69,3 @@ cmake \
 # compile & install
 make -j ${NJOBS}
 make install
-#make test
