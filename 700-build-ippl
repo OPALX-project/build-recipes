@@ -1,10 +1,10 @@
 #!/bin/bash                                                                                        #                                                                                                  # OPAL Toolchain Build r#ecipe for the Google Test framework                                       #                                                                                                             
 P=ippl
-build_type=serial
-ENABLE_FFT=ON
-ENABLE_SOLVERS=ON
-ENABLE_ALPINE=ON
-ENABLE_UNIT_TESTS=ON
+build_type=${build_type:-serial}
+ENABLE_FFT=${ENABLE_FFT:-ON}
+ENABLE_SOLVERS=${ENABLE_SOLVERS:-ON}
+ENABLE_ALPINE=${ENABLE_ALPINE:-ON}
+ENABLE_UNIT_TESTS=${ENABLE_UNIT_TESTS:-ON}
 NJOBS=8
 trap "otb_exit" EXIT
 
@@ -13,6 +13,9 @@ CUDA=OFF
 SERIAL=OFF
 OPENMP=OFF
 CXXFLAGS=""
+
+build_mode=${build_mode:-Release}
+compiler=${compiler:-"$(which gcc)"}
 
 if [[ "$build_type" == "cuda" ]]; then
     echo "Build Cuda mode."
@@ -35,29 +38,22 @@ else
     git clone git@gitlab.psi.ch:OPAL/Libraries/ippl.git
 fi
 
-#export Kokkos_DIR=/Users/adelmann/OPAL/tmp/src/kokkos
-#export Heffte_DIR=/Users/adelmann/OPAL/tmp/src/heffte/heffte-2.2.0
-
-#mkdir -p "${OTB_SRC_DIR}/$P/build_$build_type" && cd $_
-mkdir -p "${OTB_SRC_DIR}/$P/build" && cd $_
-
-# -DCMAKE_CXX_COMPILER="/opt/local/bin/clang" \  
-# CXX=/opt/local/bin/cmake
+mkdir -p "${OTB_SRC_DIR}/$P/build_$build_type" && cd $_
 
 cmake  \
-    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_BUILD_TYPE=${build_mode} \
     -DCMAKE_INSTALL_PREFIX=${OTB_PREFIX} \
     -DCMAKE_CXX_EXTENSIONS=OFF \
-    -DENABLE_TESTS=OFF \
+    -DENABLE_TESTS=ON \
     -DENABLE_UNIT_TESTS="${ENABLE_UNIT_TESTS}" \
     -DENABLE_FFT="${ENABLE_FFT}" \
     -DENABLE_SOLVERS="${ENABLE_SOLVERS}" \
     -DENABLE_ALPINE="${ENABLE_ALPINE}" \
-    -DCMAKE_CXX_COMPILER="/opt/local/bin/clang" \
-    -DCMAKE_CXX_FLAGS="$CXXFLAGS -Wc++20-extensions" \
+    -DCMAKE_CXX_COMPILER=${compiler} \
+    -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+    $ADDITIONAL_CMAKE_FLAGS \
     "${OTB_SRC_DIR}/$P"
 
-# compile & install                                                                                                                              
+# compile & install
 make -j ${NJOBS}
 make install
-#    
