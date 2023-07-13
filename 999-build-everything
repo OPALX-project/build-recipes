@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# General build parameters
+build_type=
+mode=Release
+
+# Build targets
+build_kokkos=false
+build_heffte=false
+build_ippl=false
+
+# IPPL settings
+ENABLE_FFT=ON
+ENABLE_ALPINE=ON
+ENABLE_UNIT_TESTS=ON
+EXPORT_COMMANDS=
+
+# Hardware targets
+GPU_ARCH=AMPERE80
+
+function help() {
+    echo "Usage: $0 [flags...]"
+    echo "For long form options, arguments must be given after an equal sign (--opt=arg)"
+    echo "Flags:"
+    echo "  -h|--help: show this help"
+    echo "  -t|--target target: build for target (must be one of cuda, openmp, mixed, serial)"
+    echo "  -g|--arch arch: set GPU architecture for CUDA builds (default Ampere 80)"
+    echo "  -d|--debug: debug build"
+    echo "  --mode build_mode: set build mode directly (Release, Debug, etc)"
+    echo "  -k|--kokkos: configure and build Kokkos"
+    echo "  -f|--heffte: configure and build heFFTe"
+    echo "  -i|--ippl: configure and build IPPL"
+    echo "  -c|--nofft: disable FFT (default enabled)"
+    echo "  -u|--nounit: disable unit tests"
+    echo "  --export: export compile commands for LSPs"
+}
+
+# POSIX compliant long options with getopts:
+# https://stackoverflow.com/a/28466267/2773311
+
+die() { echo $1; exit 1; }
+needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --$OPT option"; fi; }
+
+while getopts "ht:dkficug:-:" opt; do
+    if [ "$opt" = "-" ]; then   # long option: reformulate OPT and OPTARG
+        opt="${OPTARG%%=*}"       # extract long option name
+        OPTARG="${OPTARG#$opt}"   # extract long option argument (may be empty)
+        OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
+    fi
+    case $opt in
+        h | help) help; exit 0 ;;
+        t | target) needs_arg; build_type=$OPTARG ;;
+        d | debug) mode=Debug ;;
+        k | kokkos) build_kokkos=true ;;
+        f | heffte) build_heffte=true ;;
+        i | ippl) build_ippl=true ;;
+        c | nofft) ENABLE_FFT=OFF; ENABLE_ALPINE=OFF ;;
+        u | nounit) ENABLE_UNIT_TESTS=OFF ;;
+        g | arch) needs_arg; GPU_ARCH=$OPTARG ;;
+        export) EXPORT_COMMANDS="-DCMAKE_EXPORT_COMPILE_COMMANDS=1" ;;
+        mode) mode=$OPTARG ;;
+        ?) exit 1 ;;
+    esac
+done
+
+if [ -z "$build_type" ]; then
+    echo "No build target specified. Run $0 --help for more details."
+    exit 1
+fi
+
+echo "Loading modules..."
+module load cuda/12.1.1 cmake/3.25.2
+
+if [ $build_kokkos == true ]; then
+    compute_capability=$GPU_ARCH compiler=$compiler build_type=$build_type \
+        $(dirname $0)/500-build-kokkos
+fi
+if [ $build_heffte == true ]; then
+    build_type=$build_type $(dirname $0)/600-build-heffte
+fi
+if [ $build_ippl == true ]; then
+    $(dirname $0)/700-build-ippl
+fi

@@ -29,9 +29,9 @@ SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 #tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 
-NVCC_WRAPPER_DEFAULT_COMPILER="$(which gcc)"
-
 compiler=${compiler:-"$(which gcc)"}
+NVCC_WRAPPER_DEFAULT_COMPILER=${NVCC_WRAPPER_DEFAULT_COMPILER:-$compiler}
+
 CUDA=OFF
 SERIAL=OFF
 OPENMP=OFF
@@ -48,8 +48,7 @@ else
     echo "Wrong build type."
 fi
 
-rm -rf "${OTB_SRC_DIR}/$P"/build
-mkdir -p "${OTB_SRC_DIR}/$P"/build && cd $_
+mkdir -p "${OTB_SRC_DIR}/$P"/build_$build_type && cd $_
 
 cmake \
     -DCMAKE_INSTALL_PREFIX=${OTB_PREFIX} \
