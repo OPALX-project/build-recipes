@@ -1,8 +1,13 @@
 #!/bin/bash
 
 # General build parameters
-build_type=
+export build_type=
+export compiler=$(which gcc)
 mode=Release
+
+export OTB_DOWNLOAD_DIR=${OTB_DOWNLOAD_DIR:-$PWD}
+export OTB_SRC_DIR=${OTB_SRC_DIR:-$PWD}
+export OTB_PREFIX=${OTB_PREFIX:-$PWD}
 
 # Build targets
 build_kokkos=false
@@ -72,12 +77,11 @@ echo "Loading modules..."
 module load cuda/12.1.1 cmake/3.25.2
 
 if [ $build_kokkos == true ]; then
-    compute_capability=$GPU_ARCH compiler=$compiler build_type=$build_type \
-        $(dirname $0)/500-build-kokkos
+    compute_capability=$GPU_ARCH $(dirname $0)/500-build-kokkos
 fi
 if [ $build_heffte == true ]; then
-    build_type=$build_type $(dirname $0)/600-build-heffte
+    $(dirname $0)/600-build-heffte
 fi
 if [ $build_ippl == true ]; then
-    $(dirname $0)/700-build-ippl
+    ADDITIONAL_CMAKE_FLAGS=$EXPORT_COMMANDS $(dirname $0)/700-build-ippl
 fi
