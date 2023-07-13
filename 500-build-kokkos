@@ -8,8 +8,11 @@ P=kokkos
 V_MAJOR=4 #3
 V_MINOR=1  #5
 V=${V_MAJOR}.${V_MINOR}.00
-build_type=serial
+# Default to serial if no backend specified
+build_type=${build_type:-serial}
 NJOBS=16
+
+compute_capability=${compute_capability:-AMPERE80}
 
 trap "otb_exit" EXIT
 
@@ -28,7 +31,7 @@ mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 
 NVCC_WRAPPER_DEFAULT_COMPILER="$(which gcc)"
 
-compiler="$(which gcc)"
+compiler=${compiler:-"$(which gcc)"}
 CUDA=OFF
 SERIAL=OFF
 OPENMP=OFF
@@ -50,25 +53,17 @@ mkdir -p "${OTB_SRC_DIR}/$P"/build && cd $_
 
 cmake \
     -DCMAKE_INSTALL_PREFIX=${OTB_PREFIX} \
+    -DCMAKE_CXX_COMPILER="${compiler}" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_CXX_STANDARD=17 \
+    -DCMAKE_CXX_EXTENSIONS=OFF \
+    -DKokkos_ENABLE_SERIAL="${SERIAL}" \
+    -DKokkos_ARCH_${compute_capability}="${CUDA}" \
+    -DKokkos_ENABLE_OPENMP="${OPENMP}" \
+    -DKokkos_ENABLE_CUDA="${CUDA}" \
+    -DKokkos_ENABLE_CUDA_LAMBDA="${CUDA}" \
+    -DKokkos_ENABLE_CUDA_UVM=OFF \
     ${OTB_SRC_DIR}/$P/$P-$V || exit ${OTB_ERR_CONFIGURE}
-
-#    -DKokkos_CXX_STANDARD=17 \
-#    -DKokkos_ENABLE_TESTS=ON \
-
-
-# Break build     -DCMAKE_CXX_COMPILER="${compiler}" \
-#    
-#    
-#    -DKokkos_ENABLE_SERIAL="${SERIAL}" \
-#    -DKokkos_ARCH_AMPERE80="${CUDA}" \
-#    -DKokkos_ENABLE_OPENMP="${OPENMP}" \
-#    -DKokkos_ENABLE_CUDA="${CUDA}" \
-#    -DKokkos_ENABLE_CUDA_LAMBDA="${CUDA}" \
-#    -DKokkos_ENABLE_CUDA_UVM=OFF \
-
-    
 
 # compile & install
 make -j ${NJOBS}
