@@ -39,7 +39,7 @@ SERIAL=OFF
 OPENMP=OFF
 
 if [[ "$build_type" == "cuda" ]]; then
-    compiler="${SRC_DIR}/$P/$P-$V/bin/nvcc_wrapper"
+    compiler="${OTB_SRC_DIR}/$P/$P-$V/bin/nvcc_wrapper"
     CUDA=ON
     SERIAL=ON
 elif [[ "$build_type" == "serial" ]]; then

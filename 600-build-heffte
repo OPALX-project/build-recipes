@@ -13,12 +13,11 @@ backend=${heffte_backend:-fftw}
 NJOBS=8
 trap "otb_exit" EXIT
 
-mkdir -p "${OTB_SRC_DIR}/$P-$V" && cd "$_"
+mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_"
 
 if [ "$V" = "master" ]; then
     echo "git clone in $PWD"
     git clone https://github.com/icl-utk-edu/heffte.git $P-$V
-    cd $P-$V
 #    git checkout   db53f1f
 else
     echo "get tarfile"
@@ -32,8 +31,9 @@ else
 
     tar xvf "${SRC_FILE}"
     mv icl-heffte-1e75a9686fac "$P-$V"
-    exit
 fi
+
+cd "$OLDPWD"
 
 CUFFT=OFF
 FFTW=ON
@@ -49,7 +49,7 @@ else
     echo "Wrong backend."
 fi
 
-mkdir ${OTB_SRC_DIR}/$P/$P-"$V"_build && cd $_
+mkdir -p ${OTB_SRC_DIR}/$P/build_${build_type} && cd $_
 
 cmake \
     -DCMAKE_INSTALL_PREFIX=${OTB_PREFIX} \
@@ -61,7 +61,7 @@ cmake \
     -DCUDA_TOOLKIT_ROOT_DIR="${CUDA_DIR}" \
     -DHeffte_ENABLE_MKL="${MKL}" \
     -DMKL_ROOT="${MKL_DIR}" \
-    ${OTB_SRC_DIR}/$P-$V/$P-$V
+    ${OTB_SRC_DIR}/$P/$P-$V || exit ${OTB_ERR_CONFIGURE}
 
 # compile & install
 make -j ${NJOBS} 
