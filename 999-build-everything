@@ -76,12 +76,15 @@ fi
 echo "Loading modules..."
 module load gcc/11.4.0 cuda/12.1.1 cmake/3.25.2 gtest/1.13.0-1 openmpi/4.1.5_slurm fftw/3.3.10_merlin6
 
+Kokkos_DIR="${OTB_SRC_DIR}/Kokkos/Kokkos_${build_type}"
+Heffte_DIR="${OTB_SRC_DIR}/Heffte/Heffte_${build_type}"
+
 if [ $build_kokkos == true ]; then
-    compute_capability=$GPU_ARCH $(dirname $0)/500-build-kokkos
+    compute_capability=$GPU_ARCH OTB_PREFIX="$Kokkos_DIR" source $(dirname $0)/500-build-kokkos
 fi
 if [ $build_heffte == true ]; then
-    $(dirname $0)/600-build-heffte
+    OTB_PREFIX="$Heffte_DIR" source $(dirname $0)/600-build-heffte
 fi
 if [ $build_ippl == true ]; then
-    ADDITIONAL_CMAKE_FLAGS=$EXPORT_COMMANDS $(dirname $0)/700-build-ippl
+    ADDITIONAL_CMAKE_FLAGS=$EXPORT_COMMANDS source $(dirname $0)/700-build-ippl
 fi
