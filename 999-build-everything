@@ -44,7 +44,7 @@ function help() {
 # https://stackoverflow.com/a/28466267/2773311
 
 die() { echo $1; exit 1; }
-needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --$OPT option"; fi; }
+needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --$opt option"; fi; }
 
 while getopts "ht:dkficug:-:" opt; do
     if [ "$opt" = "-" ]; then   # long option: reformulate OPT and OPTARG
@@ -74,17 +74,24 @@ if [ -z "$build_type" ]; then
 fi
 
 echo "Loading modules..."
-module load gcc/11.4.0 cuda/12.1.1 cmake/3.25.2 gtest/1.13.0-1 openmpi/4.1.5_slurm fftw/3.3.10_merlin6
+if [ ! -z "$PMODULES_HOME" ]; then
+    module load gcc/11.4.0 cuda/12.1.1 cmake/3.25.2 gtest/1.13.0-1 openmpi/4.1.5_slurm fftw/3.3.10_merlin6
+fi
 
 export Kokkos_DIR="${OTB_SRC_DIR}/Kokkos/Kokkos_${build_type}"
 export Heffte_DIR="${OTB_SRC_DIR}/Heffte/Heffte_${build_type}"
 
 if [ $build_kokkos == true ]; then
-    compute_capability=$GPU_ARCH OTB_PREFIX="$Kokkos_DIR" source $(dirname $0)/500-build-kokkos
+    compute_capability=$GPU_ARCH OTB_PREFIX="$Kokkos_DIR" $(dirname $0)/500-build-kokkos
 fi
 if [ $build_heffte == true ]; then
-    OTB_PREFIX="$Heffte_DIR" source $(dirname $0)/600-build-heffte
+    if [ $build_type == "cuda" ]; then
+        backend=cufft
+    elif [ $build_type == "openmp" ]; then
+        backend=fftw
+    fi
+    build_type=$build_type heffte_backend=$backend OTB_PREFIX="$Heffte_DIR" $(dirname $0)/600-build-heffte
 fi
 if [ $build_ippl == true ]; then
-    ADDITIONAL_CMAKE_FLAGS=$EXPORT_COMMANDS source $(dirname $0)/700-build-ippl
+    ADDITIONAL_CMAKE_FLAGS=$EXPORT_COMMANDS $(dirname $0)/700-build-ippl
 fi

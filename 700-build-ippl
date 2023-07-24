@@ -1,4 +1,4 @@
-#!/bin/bash                                                                                        #                                                                                                  # OPAL Toolchain Build r#ecipe for the Google Test framework                                       #                                                                                                             
+#!/bin/bash
 P=ippl
 build_type=${build_type:-serial}
 ENABLE_FFT=${ENABLE_FFT:-ON}
