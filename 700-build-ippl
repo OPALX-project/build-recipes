@@ -32,7 +32,7 @@ fi
 cd "${OTB_SRC_DIR}"
 if [ -d "ippl" ] 
 then
-    echo "Ippl exists do nothing" 
+    echo "Found existing IPPL source directory"
 else
     echo "Clone ippl repo ... "
     git clone git@gitlab.psi.ch:OPAL/Libraries/ippl.git
@@ -40,7 +40,7 @@ fi
 
 mkdir -p "${OTB_SRC_DIR}/$P/build_$build_type" && cd $_
 
-cmake  \
+cmake \
     -DCMAKE_BUILD_TYPE=${build_mode} \
     -DCMAKE_INSTALL_PREFIX=${OTB_PREFIX} \
     -DCMAKE_CXX_EXTENSIONS=OFF \

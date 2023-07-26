@@ -64,5 +64,5 @@ cmake \
     ${OTB_SRC_DIR}/$P/$P-$V || exit ${OTB_ERR_CONFIGURE}
 
 # compile & install
-make -j ${NJOBS} 
+make -j ${NJOBS} Heffte
 make install
