@@ -2,7 +2,7 @@
 
 # General build parameters
 export build_type=
-export compiler=$(which gcc)
+export compiler=$(which g++)
 mode=Release
 
 export OTB_DOWNLOAD_DIR=${OTB_DOWNLOAD_DIR:-$PWD}
