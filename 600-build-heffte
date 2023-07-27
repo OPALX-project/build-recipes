@@ -35,9 +35,9 @@ fi
 
 cd "$OLDPWD"
 
-CUFFT=OFF
-FFTW=ON
-MKL=OFF
+CUFFT=${CUFFT:-OFF}
+FFTW=${FFTW:-ON}
+MKL=${MKL:-OFF}
 
 if [[ "$backend" == "cufft" ]]; then
     CUFFT=ON
@@ -45,8 +45,6 @@ elif [[ "$backend" == "fftw" ]]; then
     FFTW=ON
 elif [[ "$backend" == "mkl" ]]; then
     MKL=ON
-else
-    echo "Wrong backend."
 fi
 
 mkdir -p ${OTB_SRC_DIR}/$P/build_${build_type} && cd $_

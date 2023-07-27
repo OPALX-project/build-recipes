@@ -34,20 +34,21 @@ fi
 compiler=${compiler:-"$(which gcc)"}
 NVCC_WRAPPER_DEFAULT_COMPILER=${NVCC_WRAPPER_DEFAULT_COMPILER:-$compiler}
 
-CUDA=OFF
-SERIAL=OFF
-OPENMP=OFF
+CUDA=${CUDA:-OFF}
+SERIAL=${SERIAL:-OFF}
+OPENMP=${OPENMP:-OFF}
 
 if [[ "$build_type" == "cuda" ]]; then
-    compiler="${OTB_SRC_DIR}/$P/$P-$V/bin/nvcc_wrapper"
     CUDA=ON
     SERIAL=ON
 elif [[ "$build_type" == "serial" ]]; then
     SERIAL=ON
 elif [[ "$build_type" == "openmp" ]]; then
     OPENMP=ON
-else
-    echo "Wrong build type."
+fi
+
+if [ $CUDA == "ON" ]; then
+    compiler="${OTB_SRC_DIR}/$P/$P-$V/bin/nvcc_wrapper"
 fi
 
 mkdir -p "${OTB_SRC_DIR}/$P"/build_$build_type && cd $_
@@ -56,7 +57,7 @@ cmake \
     -DCMAKE_INSTALL_PREFIX=${OTB_PREFIX} \
     -DCMAKE_CXX_COMPILER="${compiler}" \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_CXX_STANDARD=17 \
+    -DCMAKE_CXX_STANDARD=20 \
     -DCMAKE_CXX_EXTENSIONS=OFF \
     -DKokkos_ENABLE_SERIAL="${SERIAL}" \
     -DKokkos_ARCH_${compute_capability}="${CUDA}" \
