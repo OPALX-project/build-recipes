@@ -1,5 +1,44 @@
 #!/bin/bash
 
+otb_exit() {
+    local -i ec=$?
+	if [[ -n "${BASH_VERSION}" ]]; then
+        local -i n=${#BASH_SOURCE[@]}
+        local -r recipe_name="${BASH_SOURCE[n]}"
+	else
+		local -r recipe_name="${ZSH_ARGZERO}"
+	fi
+        echo -n "${recipe_name}: "
+        if (( ec == 0 )); then
+                echo "done!"
+        elif (( ec == OTB_ERR_ARG )); then
+                echo "argument error!"
+        elif (( ec == OTB_ERR_SETUP )); then
+                echo "error in setting everything up!"
+        elif (( ec == OTB_ERR_SYSTEM )); then
+                echo "unexpected system error!"
+        elif (( ec == OTB_ERR_DOWNLOAD )); then
+                echo "error in downloading the source file!"
+        elif (( ec == OTB_ERR_UNTAR )); then
+                echo "error in un-taring the source file!"
+        elif (( ec == OTB_ERR_CONFIGURE )); then
+                echo "error in configuring the software!"
+        elif (( ec == OTB_ERR_MAKE )); then
+                echo "error in compiling the software!"
+        elif (( ec == OTB_ERR_PRE_INSTALL )); then
+                echo "error in pre-installing the software!"
+        elif (( ec == OTB_ERR_INSTALL )); then
+                echo "error in installing the software!"
+        elif (( ec == OTB_ERR_POST_INSTALL )); then
+                echo "error in post-installing the software!"
+        else
+                echo "oops, unknown error!!!"
+        fi
+        exit ${ec}
+}
+
+export -f otb_exit > /dev/null
+
 # General build parameters
 export build_type=
 export compiler=$(which g++)
@@ -13,6 +52,16 @@ export OTB_PREFIX=${OTB_PREFIX:-$PWD}
 build_kokkos=false
 build_heffte=false
 build_ippl=false
+
+# Kokkos backends
+CUDA=OFF
+OPENMP=OFF
+SERIAL=OFF
+
+# heFFTe backends
+CUFFT=OFF
+FFTW=OFF
+MKL=OFF
 
 # IPPL settings
 ENABLE_FFT=ON
@@ -28,7 +77,11 @@ function help() {
     echo "For long form options, arguments must be given after an equal sign (--opt=arg)"
     echo "Flags:"
     echo "  -h|--help: show this help"
-    echo "  -t|--target target: build for target (must be one of cuda, openmp, mixed, serial)"
+    echo "  -t|--target target: preset build for target (must be one of cuda, openmp, mixed, serial)"
+    echo "  --enable-cuda: build for CUDA (enables CUDA for Kokkos and cuFFT for heFFTe)"
+    echo "  --enable-openmp: build for OpenMP (enables OpenMP for Kokkos and FFTW for heFFTe)"
+    echo "  --enable-serial: enable serial for Kokkos (also enables FFTW for heFFTe)"
+    echo "  --enable-mkl: enable MKL for heFFTe"
     echo "  -g|--arch arch: set GPU architecture for CUDA builds (default Ampere 80)"
     echo "  -d|--debug: debug build"
     echo "  --mode build_mode: set build mode directly (Release, Debug, etc)"
@@ -64,6 +117,10 @@ while getopts "ht:dkficug:-:" opt; do
         g | arch) needs_arg; GPU_ARCH=$OPTARG ;;
         export) EXPORT_COMMANDS="-DCMAKE_EXPORT_COMPILE_COMMANDS=1" ;;
         mode) mode=$OPTARG ;;
+        enable-cuda) CUDA=ON; CUFFT=ON ;;
+        enable-openmp) OPENMP=ON; FFTW=ON ;;
+        enable-serial) SERIAL=ON; FFTW=ON ;;
+        enable-mkl) MKL=ON ;;
         ?) exit 1 ;;
     esac
 done
@@ -78,20 +135,20 @@ if [ ! -z "$PMODULES_HOME" ]; then
     module load gcc/11.4.0 cuda/12.1.1 cmake/3.25.2 gtest/1.13.0-1 openmpi/4.1.5_slurm fftw/3.3.10_merlin6
 fi
 
-export Kokkos_DIR="${OTB_SRC_DIR}/Kokkos/Kokkos_${build_type}"
-export Heffte_DIR="${OTB_SRC_DIR}/Heffte/Heffte_${build_type}"
+export Kokkos_DIR=${Kokkos_DIR:-"${OTB_SRC_DIR}/Kokkos/Kokkos_${build_type}"}
+export Heffte_DIR=${Heffte_DIR:-"${OTB_SRC_DIR}/Heffte/Heffte_${build_type}"}
 
 if [ $build_kokkos == true ]; then
-    compute_capability=$GPU_ARCH OTB_PREFIX="$Kokkos_DIR" $(dirname $0)/500-build-kokkos
+    compute_capability=$GPU_ARCH OTB_PREFIX="$Kokkos_DIR" CUDA=$CUDA OPENMP=$OPENMP SERIAL=$SERIAL $(dirname $0)/500-build-kokkos
 fi
 if [ $build_heffte == true ]; then
     if [ $build_type == "cuda" ]; then
         backend=cufft
-    elif [ $build_type == "openmp" ]; then
+    elif [[ $build_type == "openmp" || $build_type == "serial" ]]; then
         backend=fftw
     fi
-    build_type=$build_type heffte_backend=$backend OTB_PREFIX="$Heffte_DIR" $(dirname $0)/600-build-heffte
+    build_type=$build_type heffte_backend=$backend OTB_PREFIX="$Heffte_DIR" CUFFT=$CUFFT FFTW=$FFTW MKL=$MKL $(dirname $0)/600-build-heffte
 fi
 if [ $build_ippl == true ]; then
-    ADDITIONAL_CMAKE_FLAGS=$EXPORT_COMMANDS $(dirname $0)/700-build-ippl
+    ADDITIONAL_CMAKE_FLAGS=$EXPORT_COMMANDS build_mode=$mode $(dirname $0)/700-build-ippl
 fi
