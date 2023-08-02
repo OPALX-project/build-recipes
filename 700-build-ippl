@@ -20,7 +20,7 @@ compiler=${compiler:-"$(which gcc)"}
 if [[ "$build_type" == "cuda" ]]; then
     echo "Build Cuda mode."
     compiler="${Kokkos_DIR}/bin/nvcc_wrapper"
-    CXXFLAGS="--expt-extended-lambda"
+    CXXFLAGS="--expt-relaxed-constexpr"
 elif [[ "$build_type" == "serial" ]]; then
     echo "Build serial mode."
 elif [[ "$build_type" == "openmp" ]]; then
