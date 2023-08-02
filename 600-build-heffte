@@ -9,39 +9,44 @@ V_MAJOR=2
 V_MINOR=2
 V=${V_MAJOR}.${V_MINOR}.0
 V='master'
-backend=${heffte_backend:-fftw}
+backend=${backend:-fftw}
+build_type=${build_type:-$backend}
 NJOBS=8
 trap "otb_exit" EXIT
 
 mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_"
 
-if [ "$V" = "master" ]; then
-    echo "git clone in $PWD"
-    git clone https://github.com/icl-utk-edu/heffte.git $P-$V
-#    git checkout   db53f1f
-else
-    echo "get tarfile"
-    FNAME="$P-$V.tar.xz"
-    DOWNLOAD_URL="https://bitbucket.org/icl/$P/get/v$V.tar.gz"
-    SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
-    # download
-    curl -L \
-    --output "${SRC_FILE}" \
-    "${DOWNLOAD_URL}"
+if [ ! -d $P-$V ]; then
+    if [ "$V" = "master" ]; then
+        echo "git clone in $PWD"
+        git clone https://github.com/icl-utk-edu/heffte.git $P-$V
+    #    git checkout   db53f1f
+    else
+        echo "get tarfile"
+        FNAME="$P-$V.tar.xz"
+        DOWNLOAD_URL="https://bitbucket.org/icl/$P/get/v$V.tar.gz"
+        SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
+        # download
+        curl -L \
+        --output "${SRC_FILE}" \
+        "${DOWNLOAD_URL}"
 
-    tar xvf "${SRC_FILE}"
-    mv icl-heffte-1e75a9686fac "$P-$V"
+        tar xvf "${SRC_FILE}"
+        mv icl-heffte-1e75a9686fac "$P-$V"
+    fi
+else
+    echo "Found existing installation"
 fi
 
 cd "$OLDPWD"
 
 CUFFT=${CUFFT:-OFF}
-FFTW=${FFTW:-ON}
+FFTW=${FFTW:-OFF}
 MKL=${MKL:-OFF}
 
-if [[ "$backend" == "cufft" ]]; then
+if [[ "$backend" == "cufft" || "$build_type" == "cuda" ]]; then
     CUFFT=ON
-elif [[ "$backend" == "fftw" ]]; then
+elif [[ "$backend" == "fftw" || "$build_type" == "openmp" || "$build_type" == "serial" ]]; then
     FFTW=ON
 elif [[ "$backend" == "mkl" ]]; then
     MKL=ON
@@ -62,5 +67,5 @@ cmake \
     ${OTB_SRC_DIR}/$P/$P-$V || exit ${OTB_ERR_CONFIGURE}
 
 # compile & install
-make -j ${NJOBS} Heffte
+make -j ${NJOBS}
 make install
