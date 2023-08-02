@@ -55,7 +55,7 @@ build_ippl=false
 
 # Kokkos backends
 CUDA=OFF
-OPENMP=OFF
+OPENMP=${OPENMP:-OFF}
 SERIAL=OFF
 
 # heFFTe backends
@@ -77,7 +77,8 @@ function help() {
     echo "For long form options, arguments must be given after an equal sign (--opt=arg)"
     echo "Flags:"
     echo "  -h|--help: show this help"
-    echo "  -t|--target target: preset build for target (must be one of cuda, openmp, mixed, serial)"
+    echo "  -t|--target target: preset build for target (cuda/openmp/serial) or name for custom build;"
+    echo "                      this flag is REQUIRED as it will be used to identify the build directories"
     echo "  --enable-cuda: build for CUDA (enables CUDA for Kokkos and cuFFT for heFFTe)"
     echo "  --enable-openmp: build for OpenMP (enables OpenMP for Kokkos and FFTW for heFFTe)"
     echo "  --enable-serial: enable serial for Kokkos (also enables FFTW for heFFTe)"
@@ -132,22 +133,18 @@ fi
 
 echo "Loading modules..."
 if [ ! -z "$PMODULES_HOME" ]; then
-    module load gcc/11.4.0 cuda/12.1.1 cmake/3.25.2 gtest/1.13.0-1 openmpi/4.1.5_slurm fftw/3.3.10_merlin6
+    module load gcc/11.4.0 gtest/1.13.0-1 openmpi/4.1.5_slurm fftw/3.3.10_merlin6
+    module load cuda/12.1.1 cmake/3.25.2
 fi
 
 export Kokkos_DIR=${Kokkos_DIR:-"${OTB_SRC_DIR}/Kokkos/Kokkos_${build_type}"}
 export Heffte_DIR=${Heffte_DIR:-"${OTB_SRC_DIR}/Heffte/Heffte_${build_type}"}
 
 if [ $build_kokkos == true ]; then
-    compute_capability=$GPU_ARCH OTB_PREFIX="$Kokkos_DIR" CUDA=$CUDA OPENMP=$OPENMP SERIAL=$SERIAL $(dirname $0)/500-build-kokkos
+    build_type=$build_type compute_capability=$GPU_ARCH OTB_PREFIX="$Kokkos_DIR" CUDA=$CUDA OPENMP=$OPENMP SERIAL=$SERIAL $(dirname $0)/500-build-kokkos
 fi
 if [ $build_heffte == true ]; then
-    if [ $build_type == "cuda" ]; then
-        backend=cufft
-    elif [[ $build_type == "openmp" || $build_type == "serial" ]]; then
-        backend=fftw
-    fi
-    build_type=$build_type heffte_backend=$backend OTB_PREFIX="$Heffte_DIR" CUFFT=$CUFFT FFTW=$FFTW MKL=$MKL $(dirname $0)/600-build-heffte
+    build_type=$build_type OTB_PREFIX="$Heffte_DIR" CUFFT=$CUFFT FFTW=$FFTW MKL=$MKL $(dirname $0)/600-build-heffte
 fi
 if [ $build_ippl == true ]; then
     ADDITIONAL_CMAKE_FLAGS=$EXPORT_COMMANDS build_mode=$mode $(dirname $0)/700-build-ippl
