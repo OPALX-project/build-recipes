@@ -141,10 +141,14 @@ export Kokkos_DIR=${Kokkos_DIR:-"${OTB_SRC_DIR}/Kokkos/Kokkos_${build_type}"}
 export Heffte_DIR=${Heffte_DIR:-"${OTB_SRC_DIR}/Heffte/Heffte_${build_type}"}
 
 if [ $build_kokkos == true ]; then
-    build_type=$build_type compute_capability=$GPU_ARCH OTB_PREFIX="$Kokkos_DIR" CUDA=$CUDA OPENMP=$OPENMP SERIAL=$SERIAL $(dirname $0)/500-build-kokkos
+    build_type=$build_type compute_capability=$GPU_ARCH \
+        OTB_PREFIX="$Kokkos_DIR" CUDA=$CUDA OPENMP=$OPENMP SERIAL=$SERIAL \
+        $(dirname $0)/500-build-kokkos
 fi
 if [ $build_heffte == true ]; then
-    build_type=$build_type OTB_PREFIX="$Heffte_DIR" CUFFT=$CUFFT FFTW=$FFTW MKL=$MKL $(dirname $0)/600-build-heffte
+    backend= build_type=$build_type \
+        OTB_PREFIX="$Heffte_DIR" CUFFT=$CUFFT FFTW=$FFTW MKL=$MKL \
+        $(dirname $0)/600-build-heffte
 fi
 if [ $build_ippl == true ]; then
     ADDITIONAL_CMAKE_FLAGS=$EXPORT_COMMANDS build_mode=$mode $(dirname $0)/700-build-ippl
