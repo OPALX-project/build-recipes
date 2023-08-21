@@ -35,7 +35,11 @@ then
     echo "Found existing IPPL source directory"
 else
     echo "Clone ippl repo ... "
-    git clone git@gitlab.psi.ch:OPAL/Libraries/ippl.git
+    if [ -z "$USE_SSH" ]; then
+        git clone git@gitlab.psi.ch:OPAL/Libraries/ippl.git
+    else
+        git clone https://gitlab.psi.ch/OPAL/Libraries/ippl.git
+    fi
 fi
 
 mkdir -p "${OTB_SRC_DIR}/$P/build_$build_type" && cd $_
