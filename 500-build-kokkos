@@ -5,11 +5,14 @@
 # https://github.com/google/googletest
 #
 P=kokkos
-V_MAJOR=4 #3
-V_MINOR=1  #5
+V_MAJOR=4
+V_MINOR=1
 V=${V_MAJOR}.${V_MINOR}.00
-build_type=serial
-NJOBS=16
+# Default to serial if no backend specified
+build_type=${build_type:-serial}
+NJOBS=${NJOBS:-16}
+
+compute_capability=${compute_capability:-AMPERE80}
 
 trap "otb_exit" EXIT
 
@@ -17,60 +20,53 @@ FNAME="$P-$V.tar.xz"
 DOWNLOAD_URL="https://github.com/kokkos/kokkos/archive/$V/${FNAME}"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
-# download
-#curl -L \
-#    --output "${SRC_FILE}" \
-#    "https://github.com/kokkos/kokkos/archive/$V/$P-$V.tar.gz"
+if [ ! -f "$SRC_FILE" ]; then
+    # download
+    curl -L \
+        --output "${SRC_FILE}" \
+        "https://github.com/kokkos/kokkos/archive/$V/$P-$V.tar.gz"
 
-# unpack
-mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
-#tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
+    # unpack
+    mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+    tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
+fi
 
-NVCC_WRAPPER_DEFAULT_COMPILER="$(which gcc)"
+compiler=${compiler:-"$(which gcc)"}
+NVCC_WRAPPER_DEFAULT_COMPILER=${NVCC_WRAPPER_DEFAULT_COMPILER:-$compiler}
 
-compiler="$(which gcc)"
-CUDA=OFF
-SERIAL=OFF
-OPENMP=OFF
+CUDA=${CUDA:-OFF}
+SERIAL=${SERIAL:-OFF}
+OPENMP=${OPENMP:-OFF}
 
 if [[ "$build_type" == "cuda" ]]; then
-    compiler="${SRC_DIR}/$P/$P-$V/bin/nvcc_wrapper"
     CUDA=ON
     SERIAL=ON
 elif [[ "$build_type" == "serial" ]]; then
     SERIAL=ON
 elif [[ "$build_type" == "openmp" ]]; then
     OPENMP=ON
-else
-    echo "Wrong build type."
 fi
 
-rm -rf "${OTB_SRC_DIR}/$P"/build
-mkdir -p "${OTB_SRC_DIR}/$P"/build && cd $_
+if [ $CUDA == "ON" ]; then
+    compiler="${OTB_SRC_DIR}/$P/$P-$V/bin/nvcc_wrapper"
+fi
+
+mkdir -p "${OTB_SRC_DIR}/$P"/build_$build_type && cd $_
 
 cmake \
     -DCMAKE_INSTALL_PREFIX=${OTB_PREFIX} \
+    -DCMAKE_CXX_COMPILER="${compiler}" \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_CXX_STANDARD=17 \
+    -DCMAKE_CXX_STANDARD=20 \
+    -DCMAKE_CXX_EXTENSIONS=OFF \
+    -DKokkos_ENABLE_SERIAL="${SERIAL}" \
+    -DKokkos_ARCH_${compute_capability}="${CUDA}" \
+    -DKokkos_ENABLE_OPENMP="${OPENMP}" \
+    -DKokkos_ENABLE_CUDA="${CUDA}" \
+    -DKokkos_ENABLE_CUDA_LAMBDA="${CUDA}" \
+    -DKokkos_ENABLE_CUDA_UVM=OFF \
     ${OTB_SRC_DIR}/$P/$P-$V || exit ${OTB_ERR_CONFIGURE}
-
-#    -DKokkos_CXX_STANDARD=17 \
-#    -DKokkos_ENABLE_TESTS=ON \
-
-
-# Break build     -DCMAKE_CXX_COMPILER="${compiler}" \
-#    
-#    
-#    -DKokkos_ENABLE_SERIAL="${SERIAL}" \
-#    -DKokkos_ARCH_AMPERE80="${CUDA}" \
-#    -DKokkos_ENABLE_OPENMP="${OPENMP}" \
-#    -DKokkos_ENABLE_CUDA="${CUDA}" \
-#    -DKokkos_ENABLE_CUDA_LAMBDA="${CUDA}" \
-#    -DKokkos_ENABLE_CUDA_UVM=OFF \
-
-    
 
 # compile & install
 make -j ${NJOBS}
 make install
-#make test
