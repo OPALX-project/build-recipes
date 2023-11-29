@@ -5,7 +5,7 @@
 # https://www.boost.org
 #
 P=boost
-V=${BOOST_VERSION:-1_81_0}
+V=${BOOST_VERSION:-1_83_0}
 
 trap "otb_exit" EXIT
 
