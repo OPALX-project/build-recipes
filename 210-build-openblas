@@ -31,11 +31,11 @@ cd "$P-$V" || exit ${OTB_ERR_SYSTEM}
 # configure
 OS=$(uname -s)
 declare -a config_args=()
-if [[ "${OS}" == "Linux" ]]; then
-        :
-elif [[ "${OS}" == "Darwin" ]]; then
-	config_args+=( "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15" )
-fi
+#if [[ "${OS}" == "Linux" ]]; then
+#        :
+#elif [[ "${OS}" == "Darwin" ]]; then
+#	config_args+=( "-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15" )
+#fi
 mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 cmake \
 	-DCMAKE_INSTALL_PREFIX:PATH="${OTB_PREFIX}" \
