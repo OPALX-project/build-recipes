@@ -5,12 +5,13 @@
 # https://icu.unicode.org
 #
 P=icu4c
-V=${ICU_VERSION:-69.1}
+V=${ICU_VERSION:-74.1}
 
 trap "otb_exit" EXIT
 
 FNAME="$P-${V/./_}-src.tgz"
-DOWNLOAD_URL="https://github.com/unicode-org/icu/releases/download/release-69-1/${FNAME}"
+DOWNLOAD_URL="https://github.com/unicode-org/icu/releases/download/release-74-1/${FNAME}"
+https://github.com/unicode-org/icu/releases/download/release-74-1/icu4c-74_1-src.tgz
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download

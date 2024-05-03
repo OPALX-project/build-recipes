@@ -5,7 +5,7 @@
 # https://www.open-mpi.org
 #
 P=openmpi
-V=${OTB_MPI_VERSION:-4.1.4}
+V=${OTB_MPI_VERSION:-4.1.6}
 
 trap "otb_exit" EXIT
 
@@ -42,7 +42,7 @@ tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 # Configure
 unset OPAL_PREFIX
 mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
-"${OTB_SRC_DIR}/$P/$P-$V/configure" \
+CC=${CC} CXX=${CXX} "${OTB_SRC_DIR}/$P/$P-$V/configure" \
                 --prefix="${OTB_PREFIX}" \
                 --enable-mpi-cxx \
                 --enable-mpi-cxx-seek \

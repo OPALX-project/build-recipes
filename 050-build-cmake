@@ -5,7 +5,7 @@
 # https://cmake.org
 #
 P=cmake
-V=${CMAKE_VERSION:-3.22.1}
+V=${CMAKE_VERSION:-3.23.0}
 
 trap "otb_exit" EXIT
 

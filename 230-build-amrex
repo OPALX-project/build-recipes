@@ -23,9 +23,9 @@ test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_E
 
 # unpack
 mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
-tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
+#tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 cd "${OTB_SRC_DIR}/$P/$P-$V"
-patch -p1 < ${mydir}/files/AMReX_ParallelDescriptor.patch || exit ${OTB_ERR_SYSTEM}
+#patch -p1 < ${mydir}/files/AMReX_ParallelDescriptor.patch || exit ${OTB_ERR_SYSTEM}
 
 
 # configure
@@ -38,7 +38,7 @@ else
 fi
 
 mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
-CC=mpicc CXX=mpicxx FC=mpif90 cmake			\
+CC=mpicc CXX=mpicxx FC=/opt/local/bin/gfortran cmake			\
         "-DCMAKE_INSTALL_PREFIX:PATH=${OTB_PREFIX}"	\
 	"-DENABLE_PARTICLES=1"				\
 	"-DENABLE_LINEAR_SOLVERS=1"			\
