@@ -26,7 +26,6 @@ mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 cd "${OTB_SRC_DIR}/$P/$P-$V"
 patch -p1 < ${mydir}/files/AMReX_ParallelDescriptor.patch || exit ${OTB_ERR_SYSTEM}
-patch -p1 < ${mydir}/files/AMReX-18.07.1.patch || exit ${OTB_ERR_SYSTEM}
 
 
 # configure
