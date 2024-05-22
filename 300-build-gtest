@@ -5,12 +5,12 @@
 # https://github.com/google/googletest
 #
 P=googletest
-V=${GTEST_VERSION:-1.11.0}
+V=${GTEST_VERSION:-1.14.0}
 
 trap "otb_exit" EXIT
 
-FNAME="$P-release-$V.tar.gz"
-DOWNLOAD_URL="https://github.com/google/googletest/archive/release-$V/${FNAME}"
+FNAME="$P-$V.tar.gz"
+DOWNLOAD_URL="https://github.com/google/googletest/archive/refs/tags/v${V}.tar.gz"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
@@ -29,7 +29,7 @@ cmake \
         -DCMAKE_BUILD_TYPE=RELEASE \
 	-DCMAKE_C_FLAGS_INIT="-fPIC" \
 	-DCMAKE_CXX_FLAGS_INIT="-fPIC" \
-	"${OTB_SRC_DIR}/$P/$P-release-$V" || exit ${OTB_ERR_CONFIGURE}
+	"${OTB_SRC_DIR}/$P/$P-$V" || exit ${OTB_ERR_CONFIGURE}
 
 # compile and install
 make -j ${NJOBS} || exit ${OTB_ERR_MAKE}
