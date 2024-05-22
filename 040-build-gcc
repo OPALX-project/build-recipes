@@ -5,7 +5,7 @@
 # https://gcc.gnu.org
 #
 P=gcc
-V=${OTB_COMPILER_VERSION:-11.3.0}
+V=${OTB_COMPILER_VERSION:-11.4.0}
 
 trap "otb_exit" EXIT
 
