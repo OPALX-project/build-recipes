@@ -38,7 +38,7 @@ else
 fi
 
 mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
-CC=mpicc CXX=mpicxx FC=/opt/local/bin/gfortran cmake			\
+CC=mpicc CXX=mpicxx FC=mpif90 cmake			\
         "-DCMAKE_INSTALL_PREFIX:PATH=${OTB_PREFIX}"	\
 	"-DENABLE_PARTICLES=1"				\
 	"-DENABLE_LINEAR_SOLVERS=1"			\
