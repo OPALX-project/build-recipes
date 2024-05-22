@@ -11,7 +11,7 @@
 
 # recipe for:
 P=OpenBLAS
-V=${OPENBLAS_VERSION:-0.3.26}
+V=${OPENBLAS_VERSION:-0.3.27}
 
 trap "otb_exit" EXIT
 
