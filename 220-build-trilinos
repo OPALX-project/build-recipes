@@ -86,6 +86,20 @@ CC=mpicc CXX=mpicxx cmake \
         -DTrilinos_ENABLE_Optika:BOOL=OFF \
         -DTrilinos_ENABLE_Teuchos:BOOL=ON \
         -DTrilinos_ENABLE_Tpetra:BOOL=ON \
+        -DTpetra_INST_COMPLEX_DOUBLE:BOOL=OFF \
+        -DTpetra_INST_COMPLEX_FLOAT:BOOL=OFF \
+        -DTpetra_INST_CUDA:BOOL=OFF \
+        -DTpetra_INST_DD_REAL:BOOL=OFF \
+        -DTpetra_INST_DOUBLE:BOOL=ON \
+        -DTpetra_INST_FLOAT:BOOL=OFF \
+        -DTpetra_INST_FLOAT128:BOOL=OFF \
+        -DTpetra_INST_HIP:BOOL=OFF \
+        -DTpetra_INST_INT_INT:BOOL=OFF \
+        -DTpetra_INST_INT_LONG:BOOL=ON \
+        -DTpetra_INST_INT_LONG_LONG:BOOL=OFF \
+        -DTpetra_INST_INT_UNSIGNED:BOOL=OFF \
+        -DTpetra_INST_INT_UNSIGNED_LONG:BOOL=OFF \
+        -DTpetra_INST_LONG_DOUBLE:BOOL=OFF \
 	-DTrilinos_ENABLE_Zoltan2:BOOL=ON \
         -DTrilinos_ENABLE_TESTS:BOOL=OFF \
         "${config_args[@]}" \
