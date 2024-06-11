@@ -1,0 +1,5 @@
+export OTB_TOOLSET=gcc
+export OTB_MPI=openmpi
+export OTB_COMPILER_VERSION=11.4.0
+export OTB_MPI_VERSION=4.1.6
+export OTB_PYTHON_VERSION=3.6
