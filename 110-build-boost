@@ -45,12 +45,18 @@ EOF
 [[ $? == 0 ]] || exit ${OTB_ERR_CONFIGURE}
 
 # configure
+config_args=()
+if [[ -n ${OTB_PYTHON_VERSION} ]]; then
+        config_args+=( '--with-libraries=python' )
+        config_args+=( '--with-python-version=$(OTB_PYTHON_VERSION}' )
+fi
+
 mkdir -p "${OTB_SRC_DIR}/$P/build" || exit ${OTB_ERR_SYSTEM}
 cd "${OTB_SRC_DIR}/$P/${P}_$V"  || exit ${OTB_ERR_SYSTEM}
 ./bootstrap.sh \
         --prefix="${OTB_PREFIX}" \
         --with-toolset=${OTB_TOOLSET} \
-        --without-libraries=python \
+        "${config_args}" \
         || exit 1 || exit ${OTB_ERR_CONFIGURE}
         echo "using mpi ;" >> "./project-config.jam" || exit ${OTB_ERR_CONFIGURE}
 
@@ -58,7 +64,6 @@ cd "${OTB_SRC_DIR}/$P/${P}_$V"  || exit ${OTB_ERR_SYSTEM}
 ./b2 \
         --build-dir="${BUILD_DIR}" \
         --layout=system \
-        --without-python \
         toolset=${OTB_TOOLSET} \
         variant=release \
         link=shared,static \
