@@ -29,7 +29,9 @@ cmake \
         -DCMAKE_BUILD_TYPE=RELEASE \
 	-DCMAKE_C_FLAGS_INIT="-fPIC" \
 	-DCMAKE_CXX_FLAGS_INIT="-fPIC" \
-	"${OTB_SRC_DIR}/$P/$P-$V" || exit ${OTB_ERR_CONFIGURE}
+        -DBUILD_SHARED_LIBS=on \
+	"${OTB_SRC_DIR}/$P/$P-$V" \
+        || exit ${OTB_ERR_CONFIGURE}
 
 # compile and install
 make -j ${NJOBS} || exit ${OTB_ERR_MAKE}
