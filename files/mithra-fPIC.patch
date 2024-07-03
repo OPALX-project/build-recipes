@@ -6,7 +6,7 @@ diff -u mithra-2.0.orig/makefile mithra-2.0/makefile
  SHELL = /bin/sh
  COMP = mpic++
  
-+CFLAGS+=-fPIC
++CFLAGS+=-fPIC -fPIE
  CFLAGS+=-std=c++11
  CFLAGS+=-O3
  
