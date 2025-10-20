@@ -5,8 +5,7 @@
 # https://github.com/google/googletest
 #
 P=OPAL
-V=${OPAL_VERSION:-2022.1.0}
-
+V=${OPAL_VERSION:-2024.1.0}
 trap "otb_exit" EXIT
 
 FNAME="$P-$V.tar.xz"
@@ -23,7 +22,6 @@ mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 
 # configure
-mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 
 # defaults
 ENABLE_AMR=ON
@@ -36,6 +34,7 @@ if [[ "${OTB_TOOLSET}" == 'clang' ]] && [[ "${OTB_OS}" == 'macOS' ]]; then
 	ENABLE_AMR_MG_SOLVER='OFF'
 fi
 
+mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 export CC=mpicc
 export CXX=mpicxx
 export FC=mpifort

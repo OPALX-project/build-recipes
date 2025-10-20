@@ -1,0 +1,63 @@
+#!/bin/bash                                                                                        #                                                                                                  # OPAL Toolchain Build r#ecipe for the Google Test framework                                       #                                                                                                             
+P=ippl
+build_type=serial
+ENABLE_FFT=ON
+ENABLE_SOLVERS=ON
+ENABLE_ALPINE=ON
+ENABLE_UNIT_TESTS=ON
+NJOBS=8
+trap "otb_exit" EXIT
+
+# compiler="$(which mpicxx)"
+CUDA=OFF
+SERIAL=OFF
+OPENMP=OFF
+CXXFLAGS=""
+
+if [[ "$build_type" == "cuda" ]]; then
+    echo "Build Cuda mode."
+    compiler="${Kokkos_DIR}/bin/nvcc_wrapper"
+    CXXFLAGS="--expt-extended-lambda"
+elif [[ "$build_type" == "serial" ]]; then
+    echo "Build serial mode."
+elif [[ "$build_type" == "openmp" ]]; then
+    echo "Build OpenMP mode."
+else
+    echo "Wrong build type."
+fi
+
+cd "${OTB_SRC_DIR}"
+if [ -d "ippl" ] 
+then
+    echo "Ippl exists do nothing" 
+else
+    echo "Clone ippl repo ... "
+    git clone git@gitlab.psi.ch:OPAL/Libraries/ippl.git
+fi
+
+#export Kokkos_DIR=/Users/adelmann/OPAL/tmp/src/kokkos
+#export Heffte_DIR=/Users/adelmann/OPAL/tmp/src/heffte/heffte-2.2.0
+
+#mkdir -p "${OTB_SRC_DIR}/$P/build_$build_type" && cd $_
+mkdir -p "${OTB_SRC_DIR}/$P/build" && cd $_
+
+# -DCMAKE_CXX_COMPILER="/opt/local/bin/clang" \  
+# CXX=/opt/local/bin/cmake
+
+cmake  \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_INSTALL_PREFIX=${OTB_PREFIX} \
+    -DCMAKE_CXX_EXTENSIONS=OFF \
+    -DENABLE_TESTS=OFF \
+    -DENABLE_UNIT_TESTS="${ENABLE_UNIT_TESTS}" \
+    -DENABLE_FFT="${ENABLE_FFT}" \
+    -DENABLE_SOLVERS="${ENABLE_SOLVERS}" \
+    -DENABLE_ALPINE="${ENABLE_ALPINE}" \
+    -DCMAKE_CXX_COMPILER="/opt/local/bin/clang" \
+    -DCMAKE_CXX_FLAGS="$CXXFLAGS -Wc++20-extensions" \
+    "${OTB_SRC_DIR}/$P"
+
+# compile & install                                                                                                                              
+make -j ${NJOBS}
+make install
+#    
