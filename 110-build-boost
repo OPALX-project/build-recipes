@@ -64,7 +64,7 @@ cd "${OTB_SRC_DIR}/$P/${P}_$V"  || exit ${OTB_ERR_SYSTEM}
         variant=release \
         link=shared,static \
         threading=multi \
-	cxxflags="-fPIC cflags=-fPIC" \
+	cxxflags=-fPIC cflags=-fPIC \
         install -j 3 \
         || exit ${OTB_ERR_INSTALL}
 
