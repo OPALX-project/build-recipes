@@ -1,0 +1,92 @@
+#!/bin/bash
+#
+# OPAL Toolchain Build recipe for the Google Test framework
+#
+# https://github.com/google/googletest
+#
+P=heffte
+V_MAJOR=2
+V_MINOR=2
+V=${V_MAJOR}.${V_MINOR}.0
+V='master'
+backend=fftw
+NJOBS=8
+trap "otb_exit" EXIT
+
+mkdir -p "${OTB_SRC_DIR}/$P-$V" && cd "$_"
+
+if [ "$V" = "master" ]; then
+    echo "git clone in $PWD"
+    git clone https://github.com/icl-utk-edu/heffte.git $P-$V
+    cd $P-$V
+#    git checkout   db53f1f
+else
+    echo "get tarfile"
+    FNAME="$P-$V.tar.xz"
+    DOWNLOAD_URL="https://bitbucket.org/icl/$P/get/v$V.tar.gz"
+    SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
+    # download
+    curl -L \
+    --output "${SRC_FILE}" \
+    "${DOWNLOAD_URL}"
+
+    tar xvf "${SRC_FILE}"
+    mv icl-heffte-1e75a9686fac "$P-$V"
+    exit
+fi
+
+CUFFT=OFF
+FFTW=ON
+MKL=OFF
+
+if [[ "$backend" == "cufft" ]]; then
+    CUFFT=ON
+elif [[ "$backend" == "fftw" ]]; then
+    FFTW=ON
+elif [[ "$backend" == "mkl" ]]; then
+    MKL=ON
+else
+    echo "Wrong backend."
+fi
+
+rm -rf ${OTB_SRC_DIR}/$P/$P-"$V"_build
+mkdir ${OTB_SRC_DIR}/$P/$P-"$V"_build && cd $_
+
+echo "build in $PWD"
+
+cmake \
+    -DCMAKE_INSTALL_PREFIX=${OTB_PREFIX} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_CXX_COMPILER="/opt/local/bin/clang" \
+    -DCMAKE_CXX_FLAGS="$CXXFLAGS -std=c++20 -Wc++20-extensions" \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DHeffte_ENABLE_FFTW="${FFTW}" \
+    -DHeffte_ENABLE_CUDA="${CUFFT}" \
+    -DCUDA_TOOLKIT_ROOT_DIR="${CUDA_DIR}" \
+    -DHeffte_ENABLE_MKL="${MKL}" \
+    -DMKL_ROOT="${MKL_DIR}" \
+    ${OTB_SRC_DIR}/$P-$V/$P-$V
+
+# compile & install     -DFFTW_ROOT="${OTB_PREFIX}" \
+make -j ${NJOBS} 
+make install
+make test
+
+exit
+
+cmake \
+    -DCMAKE_INSTALL_PREFIX=${OTB_PREFIX} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DHeffte_ENABLE_FFTW="${FFTW}" \
+    -DHeffte_ENABLE_CUDA="${CUFFT}" \
+    -DCUDA_TOOLKIT_ROOT_DIR="${CUDA_DIR}" \
+    -DHeffte_ENABLE_MKL="${MKL}" \
+    -DMKL_ROOT="${MKL_DIR}" \
+    ${OTB_SRC_DIR}/$P/$P-$V
+
+
+make -j ${NJOBS} 
+make install
+exit
+

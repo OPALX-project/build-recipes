@@ -1,0 +1,56 @@
+#!/bin/bash                                                                                                     #                                                                                                               # OPAL Toolchain Build recipe for the Google Test framework                                                     #                                     
+P=ipplV.1x
+build_type=serial
+ENABLE_FFT=ON
+ENABLE_SOLVERS=ON
+ENABLE_ALPINE=ON
+ENABLE_UNIT_TESTS=ON
+NJOBS=8
+trap "otb_exit" EXIT
+
+# compiler="$(which mpicxx)"
+CUDA=OFF
+SERIAL=OFF
+OPENMP=OFF
+CXXFLAGS=""
+
+if [[ "$build_type" == "cuda" ]]; then
+    echo "Build Cuda mode."
+    compiler="${Kokkos_DIR}/bin/nvcc_wrapper"
+    CXXFLAGS="--expt-extended-lambda"
+elif [[ "$build_type" == "serial" ]]; then
+    echo "Build serial mode."
+elif [[ "$build_type" == "openmp" ]]; then
+    echo "Build OpenMP mode."
+else
+    echo "Wrong build type."
+fi
+
+cd "${OTB_SRC_DIR}"
+if [ -d "ipplV.1x" ] 
+then
+    echo "Ippl V 1.x exists do nothing" 
+else
+    echo "Clone ippl repo ... "
+    git clone git@gitlab.psi.ch:OPAL/Libraries/ippl.git ipplV.1x
+fi
+
+mkdir -p "${OTB_SRC_DIR}/$P/build_$build_type" && cd $_
+
+cmake \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_INSTALL_PREFIX=${HOME}/OPAL/tmp/src/ipplV.1x/build \
+    -DCMAKE_CXX_EXTENSIONS=OFF \
+    -DENABLE_TESTS=ON \
+    -DENABLE_UNIT_TESTS="${ENABLE_UNIT_TESTS}" \
+    -DENABLE_FFT="${ENABLE_FFT}" \
+    -DENABLE_SOLVERS="${ENABLE_SOLVERS}" \
+    -DENABLE_ALPINE="${ENABLE_ALPINE}" \
+    -DCMAKE_CXX_COMPILER="/opt/local/bin/clang" \
+    -DCMAKE_CXX_FLAGS="$CXXFLAGS " \
+    "${OTB_SRC_DIR}/$P"
+
+# compile & install                                                                                                                              
+make -j ${NJOBS}
+make install
+#    
