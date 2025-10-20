@@ -218,6 +218,7 @@ if [[ -z "${OTB_TOOLSET}" ]]; then
 		OTB_TOOLSET='gcc'
 	fi
 fi
+echo "TOOLSET not set, using '${OTB_TOOLSET}'!" 1>&2
 export OTB_TOOLSET
 
 export OTB_PREFIX="${OTB_PREFIX:-${HOME}/OPAL}"
