@@ -5,7 +5,7 @@
 # https://github.com/google/googletest
 #
 P=OPAL
-V=${OPAL_VERSION:-2021.1.0}
+V=${OPAL_VERSION:-2024.1.0}
 trap "otb_exit" EXIT
 
 FNAME="$P-$V.tar.xz"
@@ -13,43 +13,47 @@ DOWNLOAD_URL="https://amas.web.psi.ch/Downloads/$P/src/${FNAME}"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
-#test -r "${SRC_FILE}" \
-#    || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
+test -r "${SRC_FILE}" \
+    || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 
 # unpack
-#mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
-#tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
+mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 
 # configure
-#mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 
-#        -DOPAL_CXX_FLAGS="-Wnon-c-typedef-for-linkage -Wnon-unused-but-set-variable" 
+# defaults
+ENABLE_AMR=ON
+ENABLE_AMR_MG_SOLVER=ON
 
-mkdir -p   /Users/adelmann/OPAL/tmp/src/OPAL/opal-x-src/build
-cd         /Users/adelmann/OPAL/tmp/src/OPAL/opal-x-src/build
+# No Fortran on macOS with clang from Xcode
+# :FIXME: in the future we might have flang!
+if [[ "${OTB_TOOLSET}" == 'clang' ]] && [[ "${OTB_OS}" == 'macOS' ]]; then
+	ENABLE_AMR='OFF'
+	ENABLE_AMR_MG_SOLVER='OFF'
+fi
 
-OTB_PREFIX=/Users/adelmann/OPAL/tmp/opal-x-install
-FFTWLibs="/opt/local/lib/libfftw3.dylib;/Users/adelmann/OPAL/lib/libfftw3f.dylib;/Users/adelmann/OPAL/lib/libfftw3f_threads.dylib"
-MPILibs="/Users/adelmann/OPAL/lib/libmpi.dylib"
-
-#     -DIPPL_ROOT="/Users/adelmann/OPAL/tmp/src/OPAL/ippl-v1.x" \
+mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+export CC=mpicc
+export CXX=mpicxx
+export FC=mpifort
 cmake \
-    -DCMAKE_INSTALL_PREFIX="${OTB_PREFIX}" \
-    -DCMAKE_BUILD_TYPE=DEBUG \
-    -DCMAKE_Fortran_COMPILER_WORKS=ON \
-    -DUSE_STATIC_LIBRARIES=ON \
-    -DBUILD_OPAL_UNIT_TESTS=OFF \
-    -DCMAKE_CXX_FLAGS="-w" \
-    -DOPAL_CXX_FLAGS="-w" \
-    -DOPAL_FFTW_LIBS=${FFTWLibs} \
-    -DOPAL_MPI_LIBS=${MPILibs} \
-    .. || exit ${OTB_ERR_CONFIGURE} 
-#
-#	"${OTB_SRC_DIR}/$P/$P-$V" || exit ${OTB_ERR_CONFIGURE}
-NJOBS=16
+	-DCMAKE_INSTALL_PREFIX="${OTB_PREFIX}" \
+        -DCMAKE_BUILD_TYPE=RELEASE \
+	-DUSE_STATIC_LIBRARIES=ON \
+	-DBUILD_OPAL_UNIT_TESTS=ON \
+	-DENABLE_AMR=${ENABLE_AMR} \
+	-DENABLE_AMR_MG_SOLVER=${ENABLE_AMR_MG_SOLVER} \
+	-DENABLE_BANDRF=ON \
+	-DENABLE_IPPLTESTS=ON \
+	-DENABLE_OPAL_FEL=ON \
+	-DENABLE_SAAMG_SOLVER=ON \
+	-DENABLE_MSLANG=ON \
+	"${OTB_SRC_DIR}/$P/$P-$V" || exit ${OTB_ERR_CONFIGURE}
+
 # compile and install
-#make -j ${NJOBS} || exit ${OTB_ERR_MAKE}
-#make install || exit ${OTB_ERR_INSTALL}
+make -j ${NJOBS} || exit ${OTB_ERR_MAKE}
+make install || exit ${OTB_ERR_INSTALL}
 
 # Local Variables:
 # mode: shell-script-mode
