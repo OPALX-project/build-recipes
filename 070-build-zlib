@@ -13,9 +13,6 @@ FNAME="$P-$V.tar.gz"
 DOWNLOAD_URL="https://zlib.net/${FNAME}"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
-
-#https://zlib.net/zlib-1.2.13.tar.gz
-
 # download
 mkdir -p "${OTB_DOWNLOAD_DIR}"
 test -r "${SRC_FILE}" || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
