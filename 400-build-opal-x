@@ -1,0 +1,58 @@
+#!/bin/bash
+#
+# OPAL Toolchain Build recipe for the Google Test framework
+#
+# https://github.com/google/googletest
+#
+P=OPAL
+V=${OPAL_VERSION:-2021.1.0}
+trap "otb_exit" EXIT
+
+FNAME="$P-$V.tar.xz"
+DOWNLOAD_URL="https://amas.web.psi.ch/Downloads/$P/src/${FNAME}"
+SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
+
+# download
+#test -r "${SRC_FILE}" \
+#    || curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
+
+# unpack
+#mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+#tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
+
+# configure
+#mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+
+#        -DOPAL_CXX_FLAGS="-Wnon-c-typedef-for-linkage -Wnon-unused-but-set-variable" 
+
+mkdir -p   /Users/adelmann/OPAL/tmp/src/OPAL/opal-x-src/build
+cd         /Users/adelmann/OPAL/tmp/src/OPAL/opal-x-src/build
+
+OTB_PREFIX=/Users/adelmann/OPAL/tmp/opal-x-install
+FFTWLibs="/opt/local/lib/libfftw3.dylib;/Users/adelmann/OPAL/lib/libfftw3f.dylib;/Users/adelmann/OPAL/lib/libfftw3f_threads.dylib"
+MPILibs="/Users/adelmann/OPAL/lib/libmpi.dylib"
+
+#     -DIPPL_ROOT="/Users/adelmann/OPAL/tmp/src/OPAL/ippl-v1.x" \
+cmake \
+    -DCMAKE_INSTALL_PREFIX="${OTB_PREFIX}" \
+    -DCMAKE_BUILD_TYPE=DEBUG \
+    -DCMAKE_Fortran_COMPILER_WORKS=ON \
+    -DUSE_STATIC_LIBRARIES=ON \
+    -DBUILD_OPAL_UNIT_TESTS=OFF \
+    -DCMAKE_CXX_FLAGS="-w" \
+    -DOPAL_CXX_FLAGS="-w" \
+    -DOPAL_FFTW_LIBS=${FFTWLibs} \
+    -DOPAL_MPI_LIBS=${MPILibs} \
+    .. || exit ${OTB_ERR_CONFIGURE} 
+#
+#	"${OTB_SRC_DIR}/$P/$P-$V" || exit ${OTB_ERR_CONFIGURE}
+NJOBS=16
+# compile and install
+#make -j ${NJOBS} || exit ${OTB_ERR_MAKE}
+#make install || exit ${OTB_ERR_INSTALL}
+
+# Local Variables:
+# mode: shell-script-mode
+# sh-basic-offset: 8
+# End:
+

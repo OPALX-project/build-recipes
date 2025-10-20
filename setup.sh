@@ -212,13 +212,13 @@ fi
 # OTB_TOOLSET is used in the boost build recipe
 #
 if [[ -z "${OTB_TOOLSET}" ]]; then
-	if [[ "${OTB_OS}" == 'Darwin' ]]; then
+	if [[ "${OTB_OS}" == 'macOS' ]]; then
 		OTB_TOOLSET='clang'
 	else
 		OTB_TOOLSET='gcc'
 	fi
-	echo "TOOLSET not set, using '${OTB_TOOLSET}'!" 1>&2
 fi
+echo "TOOLSET not set, using '${OTB_TOOLSET}'!" 1>&2
 export OTB_TOOLSET
 
 export OTB_PREFIX="${OTB_PREFIX:-${HOME}/OPAL}"
