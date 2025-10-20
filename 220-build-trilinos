@@ -22,30 +22,24 @@ test -r "${SRC_FILE}" || \
 mkdir -p "${OTB_SRC_DIR}/$P/src" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 tar -xv --strip-components 1 -f "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 cd "${OTB_SRC_DIR}/$P/src"
-#patch -p1 < "${OTB_RECIPE_DIR}/file/trilinos-aztecoo.patch"
+patch -p1 < "${OTB_RECIPE_DIR}/file/trilinos-aztecoo.patch"
 
 # configure
 OS=$(uname -s)
 declare -a config_args=()
 if [[ "${OS}" == "Linux" ]]; then
-        config_args+=( "-DBLAS_LIBRARY_DIRS:PATH=${OTB_PREFIX}/lib" )
-        config_args+=( "-DBLAS_INCLUDE_DIRS:PATH=${OTB_PREFIX}/include" )
-        config_args+=( "-DBLAS_LIBRARY_NAMES:STRING=openblas" )
-        config_args+=( "-DLAPACK_LIBRARY_DIRS:PATH=${OTB_PREFIX}/lib" )
-        config_args+=( "-DLAPACK_INCLUDE_DIRS:PATH=${OTB_PREFIX}/include" )
-        config_args+=( "-DLAPACK_LIBRARY_NAMES:STRING=openblas" )
         config_args+=( "-DCMAKE_Fortran_FLAGS:STRING=-fPIC" )
 elif [[ "${OS}" == "Darwin" ]]; then
         config_args+=( "-DTrilinos_ENABLE_Fortran=OFF" )
 	config_args+=( "-DCMAKE_CXX_FLAGS=-Wno-implicit-function-declaration" )
 	config_args+=( "-DCMAKE_C_FLAGS=-Wno-implicit-function-declaration" )
-        config_args+=( "-DBLAS_LIBRARY_DIRS:PATH=${OTB_PREFIX}/lib" )
-        config_args+=( "-DBLAS_INCLUDE_DIRS:PATH=${OTB_PREFIX}/include" )
-        config_args+=( "-DBLAS_LIBRARY_NAMES:STRING=openblas" )
-        config_args+=( "-DLAPACK_LIBRARY_DIRS:PATH=${OTB_PREFIX}/lib" )
-        config_args+=( "-DLAPACK_INCLUDE_DIRS:PATH=${OTB_PREFIX}/include" )
-        config_args+=( "-DLAPACK_LIBRARY_NAMES:STRING=openblas" )
 fi
+config_args+=( "-DBLAS_LIBRARY_DIRS:PATH=${OTB_PREFIX}/lib" )
+config_args+=( "-DBLAS_INCLUDE_DIRS:PATH=${OTB_PREFIX}/include" )
+config_args+=( "-DBLAS_LIBRARY_NAMES:STRING=openblas" )
+config_args+=( "-DLAPACK_LIBRARY_DIRS:PATH=${OTB_PREFIX}/lib" )
+config_args+=( "-DLAPACK_INCLUDE_DIRS:PATH=${OTB_PREFIX}/include" )
+config_args+=( "-DLAPACK_LIBRARY_NAMES:STRING=openblas" )
 
 mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 CFLAGS="-Wno-error=implicit-function-declaration"

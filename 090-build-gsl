@@ -25,7 +25,7 @@ tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 CFLAGS="-fPIC" "${OTB_SRC_DIR}/$P/$P-$V/configure" \
                 --prefix="${OTB_PREFIX}" \
-                --enable-shared \
+                --disable-shared \
                 --enable-static \
                || exit ${OTB_ERR_CONFIGURE}
 
