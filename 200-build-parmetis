@@ -3,6 +3,7 @@
 # OPAL Toolchain Build recipe for ParMETIS
 #
 # http://glaros.dtc.umn.edu/gkhome/metis/parmetis/overview
+# download: https://ftp.fau.de/macports/distfiles/parmetis/parmetis-4.0.3.tar.gz
 #
 P=parmetis
 V=${PARMETIS_VERSION:-4.0.3}
@@ -10,7 +11,7 @@ V=${PARMETIS_VERSION:-4.0.3}
 trap "otb_exit" EXIT
 
 FNAME="$P-$V.tar.gz"
-DOWNLOAD_URL="http://glaros.dtc.umn.edu/gkhome/fetch/sw/$P/${FNAME}"
+DOWNLOAD_URL="https://ftp.fau.de/macports/distfiles/$P/${FNAME}"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download

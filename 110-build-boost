@@ -48,8 +48,8 @@ EOF
 # configure
 config_args=()
 if [[ -n ${OTB_PYTHON_VERSION} ]]; then
-        config_args+=( '--with-python' )
-        config_args+=( '--with-libraries=python' )
+        config_args+=( '--with-python=python3' )
+        config_args+=( '--with-libraries=all' )
         config_args+=( "--with-python-version=${OTB_PYTHON_VERSION}" )
 else
         config_args+=( '--without-python' )

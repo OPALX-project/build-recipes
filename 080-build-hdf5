@@ -26,7 +26,6 @@ tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 CC=mpicc CXX=mpicxx FC=mpifort "${OTB_SRC_DIR}/$P/$P-$V/configure" \
         --prefix="${OTB_PREFIX}" \
-        --disable-shared \
         --enable-parallel \
         --disable-cxx \
         --enable-unsupported \

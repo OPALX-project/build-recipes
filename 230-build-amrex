@@ -29,6 +29,8 @@ patch -p1 < ${mydir}/files/AMReX_ParallelDescriptor.patch || exit ${OTB_ERR_SYST
 
 
 # configure
+ln -s  /usr/bin/python3 ~/bin/OPAL/bin/python
+
 if (( mpi_major_version > 3 )); then
 	FORTRAN_INTERFACES='off'
 	FBASELIB='off'

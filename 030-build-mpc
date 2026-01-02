@@ -2,7 +2,8 @@
 #
 # OPAL Toolchain Build recipe for GNU MPC Library.
 #
-# http://www.multiprecision.org/mpc
+# home: http://www.multiprecision.org/mpc
+# download: https://ftp.gnu.org/gnu/mpc/
 #
 P=mpc
 V=${MPC_VERSION:-1.3.1}
