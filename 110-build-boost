@@ -4,12 +4,13 @@
 #
 # https://www.boost.org
 P=boost
-V=${BOOST_VERSION:-1_84_0}
+V=${BOOST_VERSION:-1_88_0}
 
 trap "otb_exit" EXIT
 
 FNAME="${P}_$V.tar.gz"
 DOWNLOAD_URL="https://netcologne.dl.sourceforge.net/project/$P/$P/${V//_/.}/${FNAME}"
+#DOWNLOAD_URL="https://archives.boost.io/release/${V//_/.}/${FNAME}"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
@@ -47,15 +48,11 @@ EOF
 
 # configure
 config_args=()
-if [[ -n ${OTB_PYTHON_VERSION} ]]; then
-        config_args+=( '--with-python=python3' )
-        config_args+=( '--with-libraries=all' )
-        config_args+=( "--with-python-version=${OTB_PYTHON_VERSION}" )
-else
-        config_args+=( '--without-python' )
-fi
+onfig_args+=( '--with-python=python3' )
+config_args+=( '--with-libraries=all' )
+config_args+=( "--with-python-version=${OTB_PYTHON_VERSION}" )
 
-mkdir -p "${OTB_SRC_DIR}/$P/build" || exit ${OTB_ERR_SYSTEM}
+mkdir -p "${OTB_SRC_DIR}/$P/build-$V" || exit ${OTB_ERR_SYSTEM}
 cd "${OTB_SRC_DIR}/$P/${P}_$V"  || exit ${OTB_ERR_SYSTEM}
 ./bootstrap.sh \
         --prefix="${OTB_PREFIX}" \

@@ -29,7 +29,7 @@ patch -p1 < ${mydir}/files/AMReX_ParallelDescriptor.patch || exit ${OTB_ERR_SYST
 
 
 # configure
-ln -s  /usr/bin/python3 ~/bin/OPAL/bin/python
+ln -s  /usr/bin/python3 "${OTB_PREFIX}/bin/python"
 
 if (( mpi_major_version > 3 )); then
 	FORTRAN_INTERFACES='off'
@@ -39,7 +39,7 @@ else
 	FBASELIB='on'
 fi
 
-mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+mkdir -p "${OTB_SRC_DIR}/$P/build-$V" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 CC=mpicc CXX=mpicxx FC=mpif90 cmake			\
         "-DCMAKE_INSTALL_PREFIX:PATH=${OTB_PREFIX}"	\
 	"-DENABLE_PARTICLES=1"				\

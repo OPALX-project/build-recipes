@@ -19,6 +19,23 @@ FNAME="$P-$V.tar.bz2"
 DOWNLOAD_URL="https://gmplib.org/download/$P/${FNAME}"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
+if [[ "${OTB_OS}" == 'Linux' ]]; then
+	read OS_ID OS_VERSION < <(bash -c 'source /etc/os-release; printf "%s %s\n" $ID $VERSION')
+	if [[ "${OS_ID}" == 'opensuse-leap' ]]; then
+       		case "${OS_VERSION}" in
+	        	16.0 )
+		  		CC='/usr/bin/gcc-13'
+		       		CXX='/usr/bin/g++-13'
+		        	;;
+			* )
+		  		CC='/usr/bin/gcc'
+		       		CXX='/usr/bin/g++'
+				;;
+		esac
+		export CC CXX
+	fi
+fi       
+
 # download
 mkdir -p "${OTB_DOWNLOAD_DIR}"
 test -r "${SRC_FILE}" || \
@@ -29,7 +46,7 @@ mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 
 # configure
-mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+mkdir -p "${OTB_SRC_DIR}/$P/build-$V" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 "${OTB_SRC_DIR}/$P/$P-$V/configure" \
         --prefix="${OTB_PREFIX}" \
         --disable-shared || exit ${OTB_ERR_CONFIGURE}

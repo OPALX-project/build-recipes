@@ -41,7 +41,7 @@ tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 
 # Configure
 unset OPAL_PREFIX
-mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+mkdir -p "${OTB_SRC_DIR}/$P/build-$V" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 CC=${CC} CXX=${CXX} "${OTB_SRC_DIR}/$P/$P-$V/configure" \
                 --prefix="${OTB_PREFIX}" \
                 --enable-mpi-cxx \

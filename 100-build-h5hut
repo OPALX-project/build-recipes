@@ -26,7 +26,7 @@ cd "${OTB_SRC_DIR}/$P/$P-$V" || exit ${OTB_ERR_SYSTEM}
 ./autogen.sh || exit ${OTB_ERR_CONFIGURE}
 
 # configure
-mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_"
+mkdir -p "${OTB_SRC_DIR}/$P/build-$V" && cd "$_"
 CC=mpicc CXX=mpicxx "${OTB_SRC_DIR}/$P/$P-$V/configure" \
         --prefix="${OTB_PREFIX}" \
         --enable-shared \

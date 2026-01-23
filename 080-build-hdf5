@@ -10,7 +10,14 @@ V=${HDF5_VERSION:-1.10.11}
 trap "otb_exit" EXIT
 
 FNAME="$P-$V.tar.gz"
-DOWNLOAD_URL="https://support.hdfgroup.org/ftp/HDF5/releases/$P-${V%.*}/$P-$V/src/${FNAME}"
+case "$V" in
+	1.14.6 )
+		DOWNLOAD_URL="https://support.hdfgroup.org/releases/hdf5/v1_14/v1_14_6/downloads/hdf5-1.14.6.tar.gz"
+		;;
+	* )
+		DOWNLOAD_URL="https://support.hdfgroup.org/ftp/HDF5/releases/$P-${V%.*}/$P-$V/src/${FNAME}"
+		;;
+esac
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
@@ -23,7 +30,7 @@ mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 
 # configure
-mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+mkdir -p "${OTB_SRC_DIR}/$P/build-$V" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 CC=mpicc CXX=mpicxx FC=mpifort "${OTB_SRC_DIR}/$P/$P-$V/configure" \
         --prefix="${OTB_PREFIX}" \
         --enable-parallel \

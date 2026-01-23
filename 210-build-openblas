@@ -34,7 +34,7 @@ declare -a config_args=()
 if [[ "${OS}" == "Linux" ]]; then
         config_args+=( '-DCMAKE_C_STANDARD_LIRBARIES=-lgfortran' )
 fi
-mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+mkdir -p "${OTB_SRC_DIR}/$P/build-$V" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 cmake \
 	-DCMAKE_INSTALL_PREFIX:PATH="${OTB_PREFIX}" \
 	-DDYNAMIC_ARCH=1 \

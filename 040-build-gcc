@@ -23,20 +23,35 @@ mkdir -p "${OTB_DOWNLOAD_DIR}"
 test -r "${SRC_FILE}" || \
     curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 
-# GCC on Linux tries to create the directory $OTB_PREFIX/lib64.
-# So 'make install' fails, if this is a sym-link.
-if [[ $(uname -s) == Linux ]]; then
+if [[ "${OTB_OS}" == 'Linux' ]]; then
+	# GCC on Linux tries to create the directory $OTB_PREFIX/lib64.
+	# So 'make install' fails, if this is a sym-link.
         if [[ -e ${OTB_PREFIX}/lib64 ]]; then 
 	        rm -v "${OTB_PREFIX}/lib64" || exit ${OTB_ERR_SYSTEM}
         fi
-fi
+	read OS_ID OS_VERSION < <(bash -c 'source /etc/os-release; printf "%s %s\n" $ID $VERSION')
+	if [[ "${OS_ID}" == 'opensuse-leap' ]]; then
+       		case "${OS_VERSION}" in
+	        	16.0 )
+		  		CC='/usr/bin/gcc-13'
+		       		CXX='/usr/bin/g++-13'
+		        	;;
+			* )
+		  		CC='/usr/bin/gcc'
+		       		CXX='/usr/bin/g++'
+				;;
+		esac
+		export CC CXX
+	fi
+fi       
+
 
 # unpack
 mkdir -v -p "${OTB_SRC_DIR}/$P" && cd "$_"  || exit ${OTB_ERR_SYSTEM}
 tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 
 # configure
-mkdir -v -p "${OTB_SRC_DIR}/$P/build" && cd "$_"  || exit ${OTB_ERR_SYSTEM}
+mkdir -v -p "${OTB_SRC_DIR}/$P/build-$V" && cd "$_"  || exit ${OTB_ERR_SYSTEM}
 
 # OS dependent args
 declare -a args=()
@@ -50,6 +65,7 @@ fi
         --enable-languages=c,c++,objc,obj-c++,lto,fortran \
         --enable-lto \
         --disable-multilib \
+	--disable-libsanitizer \
         --with-build-config=bootstrap-debug \
         --with-gmp="${OTB_PREFIX}" \
         --with-mpfr="${OTB_PREFIX}" \

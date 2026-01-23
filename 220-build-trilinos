@@ -41,7 +41,7 @@ config_args+=( "-DLAPACK_LIBRARY_DIRS:PATH=${OTB_PREFIX}/lib" )
 config_args+=( "-DLAPACK_INCLUDE_DIRS:PATH=${OTB_PREFIX}/include" )
 config_args+=( "-DLAPACK_LIBRARY_NAMES:STRING=openblas" )
 
-mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+mkdir -p "${OTB_SRC_DIR}/$P/build-$V" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 CFLAGS="-Wno-error=implicit-function-declaration"
 CC=mpicc CXX=mpicxx cmake \
 	-DCMAKE_C_FLAGS="{CFLAGS}" \

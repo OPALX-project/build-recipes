@@ -5,7 +5,7 @@
 # https://github.com/google/googletest
 #
 P=googletest
-V=${GTEST_VERSION:-1.14.0}
+V=${GTEST_VERSION:-1.17.0}
 
 trap "otb_exit" EXIT
 
@@ -23,7 +23,7 @@ mkdir -p "${OTB_SRC_DIR}/$P" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 
 # configure
-mkdir -p "${OTB_SRC_DIR}/$P/build" && cd "$_" || exit ${OTB_ERR_SYSTEM}
+mkdir -p "${OTB_SRC_DIR}/$P/build-$V" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 cmake \
 	-DCMAKE_INSTALL_PREFIX="${OTB_PREFIX}" \
         -DCMAKE_BUILD_TYPE=RELEASE \
