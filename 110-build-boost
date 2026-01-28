@@ -9,8 +9,8 @@ V=${BOOST_VERSION:-1_88_0}
 trap "otb_exit" EXIT
 
 FNAME="${P}_$V.tar.gz"
-DOWNLOAD_URL="https://netcologne.dl.sourceforge.net/project/$P/$P/${V//_/.}/${FNAME}"
-#DOWNLOAD_URL="https://archives.boost.io/release/${V//_/.}/${FNAME}"
+#DOWNLOAD_URL="https://netcologne.dl.sourceforge.net/project/$P/$P/${V//_/.}/${FNAME}"
+DOWNLOAD_URL="https://archives.boost.io/release/${V//_/.}/${FNAME}"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 # download
