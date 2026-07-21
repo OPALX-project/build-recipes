@@ -1,0 +1,22 @@
+diff -urN src.orig/packages/kokkos/core/src/impl/Kokkos_MemoryPool.cpp src/packages/kokkos/core/src/impl/Kokkos_MemoryPool.cpp
+--- src.orig/packages/kokkos/core/src/impl/Kokkos_MemoryPool.cpp	2022-11-10 23:02:37.000000000 +0100
++++ src/packages/kokkos/core/src/impl/Kokkos_MemoryPool.cpp	2026-07-21 09:57:18.091968238 +0200
+@@ -42,6 +42,7 @@
+ //@HEADER
+ */
+ 
++#include <cstdint>
+ #include <impl/Kokkos_Error.hpp>
+ 
+ #include <ostream>
+diff -urN src.orig/packages/teuchos/core/src/Teuchos_BigUIntDecl.hpp src/packages/teuchos/core/src/Teuchos_BigUIntDecl.hpp
+--- src.orig/packages/teuchos/core/src/Teuchos_BigUIntDecl.hpp	2026-07-21 09:54:56.574749360 +0200
++++ src/packages/teuchos/core/src/Teuchos_BigUIntDecl.hpp	2026-07-21 09:56:19.893994772 +0200
+@@ -42,6 +42,7 @@
+ #ifndef TEUCHOS_BIG_UINT_DECL_HPP
+ #define TEUCHOS_BIG_UINT_DECL_HPP
+ 
++#include <cstdint>
+ #include <iosfwd>
+ 
+ /*! \file Teuchos_BigUIntDecl.hpp
