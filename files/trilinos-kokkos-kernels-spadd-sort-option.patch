@@ -1,0 +1,20 @@
+diff -urN src.orig/packages/kokkos-kernels/src/sparse/KokkosSparse_spadd_handle.hpp src/packages/kokkos-kernels/src/sparse/KokkosSparse_spadd_handle.hpp
+--- src.orig/packages/kokkos-kernels/src/sparse/KokkosSparse_spadd_handle.hpp	2026-07-22 00:00:00.000000000 +0200
++++ src/packages/kokkos-kernels/src/sparse/KokkosSparse_spadd_handle.hpp	2026-07-22 00:00:00.000000000 +0200
+@@ -63,7 +63,8 @@
+  private:
+   bool input_sorted;
+ 
++  int sort_option;
+   size_type result_nnz_size;
+ 
+   bool called_symbolic;
+   bool called_numeric;
+@@ -114,7 +115,8 @@
+   */
+   SPADDHandle(bool input_is_sorted)
+       : input_sorted(input_is_sorted),
++        sort_option(-1),
+         result_nnz_size(0),
+         called_symbolic(false),
+         called_numeric(false) {}

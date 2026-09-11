@@ -19,11 +19,13 @@ test -r "${SRC_FILE}" || \
     curl -L --output "$_" "${DOWNLOAD_URL}" || exit ${OTB_ERR_DOWNLOAD}
 
 # unpack
+rm -rf "${OTB_SRC_DIR}/$P/src" "${OTB_SRC_DIR}/$P/build-$V"
 mkdir -p "${OTB_SRC_DIR}/$P/src" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 tar -xv --strip-components 1 -f "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 cd "${OTB_SRC_DIR}/$P/src"
-patch -p1 < "${OTB_RECIPE_DIR}/files/trilinos-aztecoo.patch"
-patch -p1 < "${OTB_RECIPE_DIR}/files/trilinos-cstdint.patch"
+patch -p1 < "${OTB_RECIPE_DIR}/files/trilinos-aztecoo.patch" || exit ${OTB_ERR_SYSTEM}
+patch -p1 < "${OTB_RECIPE_DIR}/files/trilinos-cstdint.patch" || exit ${OTB_ERR_SYSTEM}
+patch -p1 < "${OTB_RECIPE_DIR}/files/trilinos-kokkos-kernels-spadd-sort-option.patch" || exit ${OTB_ERR_SYSTEM}
 
 # configure
 OS=$(uname -s)
@@ -44,14 +46,20 @@ config_args+=( "-DLAPACK_LIBRARY_NAMES:STRING=openblas" )
 
 mkdir -p "${OTB_SRC_DIR}/$P/build-$V" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 CFLAGS="-Wno-error=implicit-function-declaration"
-CC=mpicc CXX=mpicxx cmake \
-	-DCMAKE_C_FLAGS="{CFLAGS}" \
-	-DCMAKE_INSTALL_PREFIX:PATH="${OTB_PREFIX}" \
-        -DCMAKE_CXX_FLAGS:STRING="-DMPICH_IGNORE_CXX_SEEK -fPIC" \
-        -DCMAKE_C_FLAGS:STRING="-DMPICH_IGNORE_CXX_SEEK -fPIC" \
-        -DCMAKE_BUILD_TYPE:STRING=Release \
+export CC="${OTB_PREFIX}/bin/mpicc"
+export CXX="${OTB_PREFIX}/bin/mpicxx"
+export FC="${OTB_PREFIX}/bin/mpif90"
+export MPIEXEC="${OTB_PREFIX}/bin/mpiexec"
+cmake \
+        -DCMAKE_C_COMPILER="$CC" \
+        -DCMAKE_CXX_COMPILER="$CXX" \
+        -DCMAKE_Fortran_COMPILER="$FC" \
+        -DCMAKE_C_FLAGS="$CFLAGS -DMPICH_IGNORE_CXX_SEEK -fPIC" \
+        -DCMAKE_CXX_FLAGS="-DMPICH_IGNORE_CXX_SEEK -fPIC" \
+        -DCMAKE_INSTALL_PREFIX:PATH="${OTB_PREFIX}" \
+        -DCMAKE_BUILD_TYPE=Release \
         -DTrilinos_WARNINGS_AS_ERRORS_FLAGS:STRING="" \
-	-DCMAKE_CXX_STANDARD=17 \
+        -DCMAKE_CXX_STANDARD=17 \
         -DTPL_ENABLE_DLlib:BOOL=OFF \
         -DTPL_ENABLE_QT:BOOL=OFF \
         -DTPL_ENABLE_MPI:BOOL=ON \
@@ -66,7 +74,7 @@ CC=mpicc CXX=mpicxx cmake \
         -DTrilinos_ENABLE_Amesos:BOOL=ON \
         -DTrilinos_ENABLE_Amesos2:BOOL=ON \
         -DTrilinos_ENABLE_AztecOO:BOOL=ON \
-	-DAztecOO_DISABLE_STRONG_WARNINGS:BOOL=ON \
+        -DAztecOO_DISABLE_STRONG_WARNINGS:BOOL=ON \
         -DTrilinos_ENABLE_Belos:BOOL=ON \
         -DTrilinos_ENABLE_Epetra:BOOL=ON \
         -DTrilinos_ENABLE_EpetraExt:BOOL=ON \
@@ -77,7 +85,7 @@ CC=mpicc CXX=mpicxx cmake \
         -DTrilinos_ENABLE_Kokkos:BOOL=ON \
         -DTrilinos_ENABLE_ML:BOOL=ON \
         -DTrilinos_ENABLE_NOX:BOOL=ON \
-	-DTrilinos_ENABLE_MueLu:BOOL=ON \
+        -DTrilinos_ENABLE_MueLu:BOOL=ON \
         -DTrilinos_ENABLE_Optika:BOOL=OFF \
         -DTrilinos_ENABLE_Teuchos:BOOL=ON \
         -DTrilinos_ENABLE_Tpetra:BOOL=ON \
@@ -95,7 +103,7 @@ CC=mpicc CXX=mpicxx cmake \
         -DTpetra_INST_INT_UNSIGNED:BOOL=OFF \
         -DTpetra_INST_INT_UNSIGNED_LONG:BOOL=OFF \
         -DTpetra_INST_LONG_DOUBLE:BOOL=OFF \
-	-DTrilinos_ENABLE_Zoltan2:BOOL=ON \
+        -DTrilinos_ENABLE_Zoltan2:BOOL=ON \
         -DTrilinos_ENABLE_TESTS:BOOL=OFF \
         "${config_args[@]}" \
         "${OTB_SRC_DIR}/$P/src" || exit ${OTB_ERR_CONFIGURE}

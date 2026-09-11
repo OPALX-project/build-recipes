@@ -20,3 +20,16 @@ diff -urN src.orig/packages/teuchos/core/src/Teuchos_BigUIntDecl.hpp src/package
  #include <iosfwd>
  
  /*! \file Teuchos_BigUIntDecl.hpp
+diff -urN src.orig/commonTools/gtest/gtest/gtest-all.cc src/commonTools/gtest/gtest/gtest-all.cc
+--- src.orig/commonTools/gtest/gtest/gtest-all.cc	2026-07-22 00:00:00.000000000 +0200
++++ src/commonTools/gtest/gtest/gtest-all.cc	2026-07-22 00:00:00.000000000 +0200
+@@ -7700,7 +7700,8 @@
+ # include <errno.h>
+ # include <fcntl.h>
+ # include <limits.h>
++# include <cstdint>
+ 
+ # if GTEST_OS_LINUX
+ #  include <signal.h>
+ # endif  // GTEST_OS_LINUX
+ 
