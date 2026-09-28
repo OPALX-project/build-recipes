@@ -6,7 +6,7 @@
 # download: https://ftp.gnu.org/gnu/mpc/
 #
 P=mpc
-V=${MPC_VERSION:-1.3.1}
+V=${MPC_VERSION:-1.4.1}
 
 trap "otb_exit" EXIT
 
@@ -15,8 +15,8 @@ if [[ -n "${OTB_TOOLSET}" ]] &&  [[ "${OTB_TOOLSET}" != "gcc" ]]; then
         exit 0
 fi
 
-FNAME="$P-$V.tar.gz"
-DOWNLOAD_URL="http://ftp.gnu.org/gnu/$P/$P-$V.tar.gz"
+FNAME="$P-$V.tar.xz"
+DOWNLOAD_URL="http://ftp.gnu.org/gnu/$P/$P-$V.tar.xz"
 SRC_FILE="${OTB_DOWNLOAD_DIR}/${FNAME}"
 
 if [[ "${OTB_OS}" == 'Linux' ]]; then
