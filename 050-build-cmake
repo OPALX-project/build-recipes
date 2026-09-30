@@ -5,7 +5,7 @@
 # https://cmake.org
 #
 P=cmake
-V=${CMAKE_VERSION:-3.29.5}
+V=${CMAKE_VERSION:-3.29.9}
 
 trap "otb_exit" EXIT
 
@@ -33,11 +33,11 @@ tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 mkdir -p "${OTB_SRC_DIR}/$P/build-$V" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 "${OTB_SRC_DIR}/cmake/cmake-$V/bootstrap" \
         --prefix="${OTB_PREFIX}" \
-	--no-system-libs \
-	--parallel=${NJOBS} \
+        --no-system-libs \
+        --parallel=${NJOBS} \
         --verbose \
-	-- \
-	-DCMAKE_USE_OPENSSL=OFF \
+        -- \
+        -DCMAKE_USE_OPENSSL=OFF \
        || exit ${OTB_ERR_CONFIGURE}
 #
 # Compile and install CMake
@@ -49,4 +49,3 @@ make install || exit ${OTB_ERR_INSTALL}
 # mode: shell-script-mode
 # sh-basic-offset: 8
 # End:
-
