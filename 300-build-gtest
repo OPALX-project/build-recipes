@@ -5,7 +5,7 @@
 # https://github.com/google/googletest
 #
 P=googletest
-V=${GTEST_VERSION:-1.17.0}
+V=${GTEST_VERSION:-1.18.0}
 
 trap "otb_exit" EXIT
 
@@ -25,12 +25,12 @@ tar xvf "${SRC_FILE}" || exit ${OTB_ERR_UNTAR}
 # configure
 mkdir -p "${OTB_SRC_DIR}/$P/build-$V" && cd "$_" || exit ${OTB_ERR_SYSTEM}
 cmake \
-	-DCMAKE_INSTALL_PREFIX="${OTB_PREFIX}" \
+        -DCMAKE_INSTALL_PREFIX="${OTB_PREFIX}" \
         -DCMAKE_BUILD_TYPE=RELEASE \
-	-DCMAKE_C_FLAGS_INIT="-fPIC" \
-	-DCMAKE_CXX_FLAGS_INIT="-fPIC" \
+        -DCMAKE_C_FLAGS_INIT="-fPIC" \
+        -DCMAKE_CXX_FLAGS_INIT="-fPIC" \
         -DBUILD_SHARED_LIBS=on \
-	"${OTB_SRC_DIR}/$P/$P-$V" \
+        "${OTB_SRC_DIR}/$P/$P-$V" \
         || exit ${OTB_ERR_CONFIGURE}
 
 # compile and install
@@ -41,4 +41,3 @@ make install || exit ${OTB_ERR_INSTALL}
 # mode: shell-script-mode
 # sh-basic-offset: 8
 # End:
-
